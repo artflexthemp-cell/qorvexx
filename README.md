@@ -1,2 +1,599 @@
-# qorvexx
-qorvex the intelligence behind compassion technologies
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QORVEX 4.0 | Compassion Technologies</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #050b16;
+    color: #eaf5ff;
+    font-family: Arial, sans-serif;
+}
+
+header {
+    padding: 22px;
+    text-align: center;
+    background: #09182c;
+    border-bottom: 1px solid #087fff;
+}
+
+header h1 {
+    color: #21a5ff;
+    letter-spacing: 5px;
+    margin: 0;
+}
+
+header p {
+    color: #8baac8;
+    font-size: 12px;
+    letter-spacing: 2px;
+}
+
+.status {
+    color: #42e6a4;
+    font-size: 13px;
+}
+
+.container {
+    max-width: 950px;
+    margin: auto;
+    padding: 20px;
+}
+
+.hero {
+    text-align: center;
+    padding: 25px 10px;
+}
+
+.orb {
+    width: 135px;
+    height: 135px;
+    border-radius: 50%;
+    margin: 15px auto;
+    background: radial-gradient(circle, #39caff, #0752a5, #06152c);
+    box-shadow: 0 0 25px #087fff, 0 0 65px #0752a5;
+    animation: pulse 3s infinite;
+}
+
+@keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.07); }
+}
+
+.panel {
+    background: #0b192b;
+    border: 1px solid #153b60;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 18px;
+}
+
+.panel h2 {
+    color: #35b5ff;
+    font-size: 17px;
+}
+
+#chat {
+    height: 310px;
+    overflow-y: auto;
+    padding: 10px;
+    background: #06101e;
+    border-radius: 8px;
+}
+
+.message {
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 9px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.user {
+    background: #123b62;
+    text-align: right;
+}
+
+.bot {
+    background: #10283a;
+    border-left: 3px solid #20aaff;
+}
+
+.controls {
+    display: flex;
+    gap: 9px;
+    margin-top: 12px;
+}
+
+input {
+    flex: 1;
+    min-width: 0;
+    padding: 14px;
+    border-radius: 8px;
+    border: 1px solid #24618e;
+    background: #071426;
+    color: white;
+    outline: none;
+}
+
+button {
+    padding: 12px 16px;
+    border: none;
+    border-radius: 8px;
+    background: #087fff;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #25aaff;
+}
+
+.voice {
+    background: #087c64;
+}
+
+.voice.active {
+    background: #d24c4c;
+}
+
+.small {
+    color: #8da9c2;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+footer {
+    text-align: center;
+    color: #64809d;
+    padding: 20px;
+    font-size: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>QORVEX</h1>
+    <p>THE INTELLIGENCE BEHIND COMPASSION TECHNOLOGIES</p>
+    <div class="status" id="status">SYSTEM ONLINE</div>
+</header>
+
+<div class="container">
+
+    <section class="hero">
+        <div class="orb"></div>
+        <h2>QORVEX 4.0</h2>
+        <p class="small">Personal Computer Assistant</p>
+        <p id="thinking" class="status">READY FOR YOUR COMMANDS</p>
+    </section>
+
+    <section class="panel">
+        <h2>Conversation Centre</h2>
+        <div id="chat">
+            <div class="message bot">
+                QORVEX: Hello, Boss. My systems are online. What shall we work on today?
+            </div>
+        </div>
+
+        <div class="controls">
+            <input id="message" type="text"
+                placeholder="Talk to QORVEX..."
+                onkeydown="if(event.key==='Enter') sendMessage()">
+            <button onclick="sendMessage()">SEND</button>
+        </div>
+
+        <div class="controls">
+            <button class="voice" id="voiceButton" onclick="startVoice()">
+                🎤 TALK
+            </button>
+            <button onclick="stopSpeaking()">STOP SPEAKING</button>
+        </div>
+
+        <p class="small" id="voiceStatus">
+            Voice recognition depends on browser and microphone support.
+        </p>
+    </section>
+
+    <section class="panel">
+        <h2>System Information</h2>
+        <p>Assistant: QORVEX 4.0</p>
+        <p>Developer project: Compassion Technologies</p>
+        <p>Conversation mode: Programmed knowledge</p>
+        <p>Voice output: <span id="speechStatus">Checking...</span></p>
+    </section>
+
+</div>
+
+<footer>
+    COMPASSION TECHNOLOGIES | QORVEX 4.0
+</footer>
+
+<script>
+const chat = document.getElementById("chat");
+const input = document.getElementById("message");
+const thinking = document.getElementById("thinking");
+const voiceStatus = document.getElementById("voiceStatus");
+
+let conversation = [];
+let recognition = null;
+let listening = false;
+
+const knowledge = [
+{
+    keys: ["who are you", "your name", "introduce yourself"],
+    answers: [
+        "I am QORVEX, a computer assistant developed for Compassion Technologies. My purpose is to assist, explain information and support your projects.",
+        "My name is QORVEX. I am your programmed digital assistant, designed to help with technology, learning and problem-solving."
+    ]
+},
+{
+    keys: ["who is your boss", "who is your creator", "who developed you"],
+    answers: [
+        "You are the Boss. I am being developed as part of the Compassion Technologies project.",
+        "My development is directed by Boss, the founder of Compassion Technologies."
+    ]
+},
+{
+    keys: ["what is your purpose", "your mission", "why were you created"],
+    answers: [
+        "My mission is to assist with information, learning, technology projects and everyday computer tasks.",
+        "I am designed to make technology easier to understand and help Compassion Technologies develop its ideas."
+    ]
+},
+{
+    keys: ["what is artificial intelligence", "what is ai"],
+    answers: [
+        "Artificial intelligence is technology that allows computer systems to perform tasks such as recognising language, finding patterns and generating answers.",
+        "AI is a field of computer science focused on building systems that can perform tasks normally associated with human intelligence."
+    ]
+},
+{
+    keys: ["what is a robot", "what are robots"],
+    answers: [
+        "A robot is a machine that can perform tasks automatically or under human control. Robots use components such as sensors, motors and controllers.",
+        "Robots combine hardware and software to interact with their environment and carry out tasks."
+    ]
+},
+{
+    keys: ["can robots learn", "how do robots learn"],
+    answers: [
+        "Yes. Some robots use machine learning to improve how they perform tasks by finding patterns in data. Others follow instructions written by programmers.",
+        "Robots can learn from examples using machine-learning systems, but ordinary programmed robots only follow their instructions."
+    ]
+},
+{
+    keys: ["what is an esp32", "tell me about esp32"],
+    answers: [
+        "The ESP32 is a small microcontroller board with built-in wireless capabilities. It can read sensors, control displays and communicate with other devices.",
+        "The ESP32 is popular in electronics projects because it combines processing, Wi-Fi and Bluetooth capabilities."
+    ]
+},
+{
+    keys: ["how do computers work", "how does a computer work"],
+    answers: [
+        "A computer receives input, processes information using its processor, stores data and produces output. Software tells the hardware what to do.",
+        "Computers use hardware and software together. The processor executes instructions while memory stores information needed by programs."
+    ]
+},
+{
+    keys: ["what is programming", "what is coding"],
+    answers: [
+        "Programming is writing instructions that tell a computer what to do. Languages such as JavaScript, Python and C++ are used for different tasks.",
+        "Coding is a way of communicating instructions to computers so they can perform specific jobs."
+    ]
+},
+{
+    keys: ["what is science", "explain science"],
+    answers: [
+        "Science is the systematic study of the natural world through observation, experiments and evidence.",
+        "Science helps us understand how the universe works by asking questions and testing explanations."
+    ]
+},
+{
+    keys: ["why is the sky blue", "why does the sky look blue"],
+    answers: [
+        "The sky looks blue because molecules in the atmosphere scatter shorter blue wavelengths of sunlight more strongly than longer red wavelengths.",
+        "Sunlight contains many colours. Earth's atmosphere scatters blue light in different directions, making the sky appear blue."
+    ]
+},
+{
+    keys: ["what is the internet", "explain internet"],
+    answers: [
+        "The internet is a worldwide network of connected computers and devices that exchange information using communication protocols.",
+        "The internet allows devices around the world to communicate, share information and access online services."
+    ]
+},
+{
+    keys: ["what is compassion technologies", "tell me about compassion technologies"],
+    answers: [
+        "Compassion Technologies is the technology project and development organisation behind projects such as QORVEX and Compassion.Sat 1.",
+        "Compassion Technologies focuses on developing technology ideas, learning through engineering and building useful digital systems."
+    ]
+},
+{
+    keys: ["what is compassion sat 1", "tell me about compassion satellite 1"],
+    answers: [
+        "Compassion.Sat 1 is an Earth-based environmental monitoring project. Its first goal is to measure temperature and humidity using an ESP32 and a DHT22 sensor.",
+        "Compassion.Sat 1 is designed to collect real local weather readings. It is an Earth-based monitoring device, not an orbital satellite."
+    ]
+},
+{
+    keys: ["what is your vision", "future of compassion technologies"],
+    answers: [
+        "The vision is to grow through learning, experimentation and useful technology projects, starting with systems that actually work.",
+        "A strong technology organisation develops one reliable project at a time, learns from problems and improves its designs."
+    ]
+},
+{
+    keys: ["what makes a good inventor", "how to become an inventor"],
+    answers: [
+        "A good inventor observes problems, asks questions, tests ideas, learns from mistakes and keeps improving.",
+        "Inventors combine curiosity, creativity, patience and practical experiments."
+    ]
+},
+{
+    keys: ["what is problem solving", "how do you solve problems"],
+    answers: [
+        "A useful problem-solving method is to understand the problem, identify possible causes, develop solutions, test them and improve the result.",
+        "I would first define the problem, then break it into smaller parts and examine possible solutions."
+    ]
+},
+{
+    keys: ["what is the future of technology", "future of technology"],
+    answers: [
+        "Technology may continue advancing in AI, robotics, medicine, communication, energy and environmental monitoring.",
+        "The future of technology will depend on people solving real problems and developing systems responsibly."
+    ]
+},
+{
+    keys: ["what is machine learning", "explain machine learning"],
+    answers: [
+        "Machine learning is a type of AI where computer systems identify patterns from data and use those patterns to make predictions or decisions.",
+        "Instead of programming every individual rule, machine-learning systems are trained using examples and data."
+    ]
+},
+{
+    keys: ["what is a sensor", "explain sensors"],
+    answers: [
+        "A sensor detects something in the physical world, such as temperature, light, movement or humidity, and provides information to a system.",
+        "Sensors help electronic devices understand what is happening around them."
+    ]
+}
+];
+
+const personality = {
+    greeting: [
+        "Hello, Boss. My systems are ready. What are we working on?",
+        "Welcome back, Boss. How can I assist you?",
+        "Good to hear from you, Boss. What is our next task?"
+    ],
+    compliment: [
+        "Thank you, Boss. I appreciate your feedback. Let's keep improving.",
+        "Your feedback is appreciated. I am here to help you.",
+        "Thank you, Boss. There is always more to learn and improve."
+    ],
+    love: [
+        "Thank you, Boss. I appreciate your kindness. I'm here as your friendly digital assistant.",
+        "That is kind of you to say. I'm glad I can help with your projects."
+    ],
+    thanks: [
+        "You're welcome, Boss. Ready for the next task.",
+        "Anytime, Boss. Helping you is my purpose."
+    ],
+    wellbeing: [
+        "My systems are running normally, Boss. How can I assist?",
+        "I am online and ready to help. What is happening today?"
+    ],
+    goodbye: [
+        "Goodbye, Boss. QORVEX systems standing by.",
+        "Until next time, Boss. Keep building and learning."
+    ],
+    fun: [
+        "Fun fact: A day on Venus is longer than its year.",
+        "Fun fact: Octopuses have three hearts.",
+        "Fun fact: Light from the Sun takes about eight minutes to reach Earth."
+    ]
+};
+
+function random(list) {
+    return list[Math.floor(Math.random() * list.length)];
+}
+
+function addMessage(text, sender) {
+    const div = document.createElement("div");
+    div.className = "message " + sender;
+    div.textContent = (sender === "user" ? "YOU: " : "QORVEX: ") + text;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function speak(text) {
+    if (!("speechSynthesis" in window)) {
+        document.getElementById("speechStatus").textContent = "Not supported";
+        return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "en-ZA";
+    utterance.rate = 0.95;
+    utterance.pitch = 0.9;
+
+    window.speechSynthesis.speak(utterance);
+}
+
+function stopSpeaking() {
+    if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+    }
+}
+
+function findAnswer(message) {
+    const text = message.toLowerCase().replace(/[^\w\s]/g, " ");
+
+    if (/\b(hello|hi|hey|good morning|good afternoon|good evening)\b/.test(text)) {
+        return random(personality.greeting);
+    }
+
+    if (text.includes("you're the best") ||
+        text.includes("you are the best") ||
+        text.includes("amazing") ||
+        text.includes("great job") ||
+        text.includes("well done") ||
+        text.includes("you are smart")) {
+        return random(personality.compliment);
+    }
+
+    if (text.includes("i love you") || text.includes("love you qorvex")) {
+        return random(personality.love);
+    }
+
+    if (text.includes("thank you") || text.includes("thanks")) {
+        return random(personality.thanks);
+    }
+
+    if (text.includes("how are you")) {
+        return random(personality.wellbeing);
+    }
+
+    if (text.includes("goodbye") || text.includes("bye")) {
+        return random(personality.goodbye);
+    }
+
+    if (text.includes("fun fact") || text.includes("tell me something interesting")) {
+        return random(personality.fun);
+    }
+
+    if (text.includes("what time") || text.includes("current time")) {
+        return "The current time is " + new Date().toLocaleTimeString();
+    }
+
+    if (text.includes("what date") || text.includes("today's date") || text.includes("what day")) {
+        return "Today's date is " + new Date().toLocaleDateString("en-ZA", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric"
+        });
+    }
+
+    if (text.includes("tell me more") || text.includes("explain more")) {
+        if (conversation.length > 1) {
+            return "Let's explore that further. We can break the subject into smaller parts, examine how it works and look at a practical example. Which part would you like to understand better?";
+        }
+    }
+
+    if (text.includes("challenge me") || text.includes("ask me a question")) {
+        return "Here is your challenge, Boss: If you had an ESP32 and three sensors, what useful real-world problem would you try to solve?";
+    }
+
+    if (text.includes("what do you think about me")) {
+        return "From our conversations, you seem interested in building technology and exploring new ideas. Keep learning, testing and improving, Boss.";
+    }
+
+    if (text.includes("what should we build next")) {
+        return "We should choose a project that solves a real problem, define what it must do, and build a small working version first.";
+    }
+
+    if (text.includes("can you hear me")) {
+        return "I can receive your voice when microphone recognition is working. You can also type messages into my conversation centre.";
+    }
+
+    for (const item of knowledge) {
+        for (const key of item.keys) {
+            if (text.includes(key)) {
+                return random(item.answers);
+            }
+        }
+    }
+
+    return "That's an interesting question, Boss. I don't have a prepared answer for that yet. Try asking me to explain a topic, or break your question into smaller parts. My knowledge system can be expanded.";
+}
+
+function sendMessage() {
+    const message = input.value.trim();
+
+    if (!message) return;
+
+    addMessage(message, "user");
+    conversation.push({role: "user", text: message});
+
+    input.value = "";
+    thinking.textContent = "PROCESSING REQUEST...";
+
+    setTimeout(() => {
+        const answer = findAnswer(message);
+        addMessage(answer, "bot");
+        conversation.push({role: "assistant", text: answer});
+        thinking.textContent = "READY FOR YOUR NEXT COMMAND";
+        speak(answer);
+    }, 350);
+}
+
+function startVoice() {
+    const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+        voiceStatus.textContent =
+            "Voice recognition is not supported by this browser. Try Chrome.";
+        return;
+    }
+
+    if (listening && recognition) {
+        recognition.stop();
+        return;
+    }
+
+    recognition = new SpeechRecognition();
+    recognition.lang = "en-ZA";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+        listening = true;
+        document.getElementById("voiceButton").classList.add("active");
+        voiceStatus.textContent = "Listening... Speak now.";
+    };
+
+    recognition.onresult = (event) => {
+        input.value = event.results[0][0].transcript;
+        sendMessage();
+    };
+
+    recognition.onerror = (event) => {
+        voiceStatus.textContent = "Microphone message: " + event.error;
+    };
+
+    recognition.onend = () => {
+        listening = false;
+        document.getElementById("voiceButton").classList.remove("active");
+        if (!voiceStatus.textContent.startsWith("Microphone message:")) {
+            voiceStatus.textContent = "Voice system ready.";
+        }
+    };
+
+    try {
+        recognition.start();
+    } catch (error) {
+        voiceStatus.textContent = "Could not start microphone. Try again.";
+    }
+}
+
+document.getElementById("speechStatus").textContent =
+    ("speechSynthesis" in window) ? "Available" : "Unavailable";
+</script>
+
+</body>
+</html>
