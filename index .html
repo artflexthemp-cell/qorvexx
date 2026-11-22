@@ -3,365 +3,861 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QORVEX 6.0 | Compassion Technologies</title>
+<title>QORVEX 7.0 | Compassion Space Technologies</title>
+
 <style>
-:root{--blue:#159cff;--cyan:#42d9ff;--green:#42e6a4;--bg:#040a14;--panel:#0b192b;--muted:#8da9c2}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:#eaf5ff;font-family:Arial,sans-serif}
-header{padding:20px;text-align:center;background:#09182c;border-bottom:1px solid var(--blue)}
-header h1{color:#21a5ff;letter-spacing:6px;margin:0;font-size:30px}
-header p{color:#8baac8;font-size:11px;letter-spacing:2px}
-.status{color:var(--green);font-size:12px}
-.container{max-width:1050px;margin:auto;padding:16px}
-.hero{text-align:center;padding:25px 10px}
-.orb{width:145px;height:145px;border-radius:50%;margin:15px auto;background:radial-gradient(circle,#8cecff,#159cff 25%,#0752a5 60%,#06152c);box-shadow:0 0 25px #087fff,0 0 65px #0752a5;animation:pulse 3s infinite;transition:.3s}
-.orb.thinking{animation:think .7s infinite alternate}
-.orb.listening{animation:listen .8s infinite alternate}
-.orb.happy{filter:hue-rotate(35deg);animation:happy .5s infinite alternate}
-.orb.speaking{animation:speak .3s infinite alternate}
-@keyframes pulse{50%{transform:scale(1.07)}}
-@keyframes think{to{transform:scale(.88);filter:hue-rotate(40deg)}}
-@keyframes listen{to{transform:scale(1.12);box-shadow:0 0 60px #42e6a4}}
-@keyframes happy{to{transform:scale(1.14)}}
-@keyframes speak{to{transform:scale(1.08);box-shadow:0 0 50px #42d9ff}}
-.panel{background:var(--panel);border:1px solid #153b60;border-radius:12px;padding:16px;margin-bottom:16px}
-.panel h2{color:#35b5ff;font-size:17px;margin-top:0}
-#chat{height:300px;overflow-y:auto;padding:10px;background:#06101e;border-radius:8px}
-.message{padding:12px;margin:10px 0;border-radius:9px;line-height:1.5;overflow-wrap:anywhere;white-space:pre-wrap}
-.user{background:#123b62;text-align:right}
-.bot{background:#10283a;border-left:3px solid #20aaff}
-.controls{display:flex;gap:8px;margin-top:10px}
-input{flex:1;min-width:0;padding:13px;border-radius:8px;border:1px solid #24618e;background:#071426;color:white;outline:none;font:inherit}
-button{padding:11px 14px;border:0;border-radius:8px;background:#087fff;color:white;font-weight:bold;cursor:pointer}
-button:hover{background:#25aaff}
-.voice{background:#087c64}.voice.active{background:#d24c4c}
-.secondary{background:#29445f}.danger{background:#8d303d}
-.small{color:var(--muted);font-size:12px;line-height:1.6}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.stat{background:#071426;border:1px solid #153b60;border-radius:9px;padding:12px}
-.stat strong{display:block;color:var(--cyan);font-size:21px}
-.stat span{font-size:11px;color:var(--muted)}
-#library{max-height:240px;overflow-y:auto;background:#06101e;border-radius:8px;padding:10px}
-.library-item{padding:9px;border-bottom:1px solid #18334e;font-size:13px;line-height:1.5}
-.tag{display:inline-block;background:#123b62;color:#80d7ff;border-radius:20px;padding:3px 8px;font-size:10px;margin:3px}
-footer{text-align:center;color:#64809d;padding:20px;font-size:11px}
-@media(max-width:600px){.controls{flex-wrap:wrap}.controls input{flex-basis:100%}.controls button{flex:1}.grid{grid-template-columns:1fr 1fr}}
+:root {
+  --cyan:#37dfff;
+  --blue:#087cff;
+  --bg:#030914;
+  --panel:rgba(5,24,43,.78);
+  --line:rgba(55,223,255,.25);
+  --muted:#8caec3;
+  --red:#ff405d;
+  --green:#35e6a1;
+}
+* {box-sizing:border-box}
+body {
+  margin:0;
+  background:radial-gradient(ellipse at 50% 35%,#092b49 0%,#061426 35%,#020711 75%);
+  color:#e8f8ff;
+  font-family:Arial,sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+body:before {
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.15;
+  background-image:
+    linear-gradient(rgba(55,223,255,.12) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(55,223,255,.12) 1px,transparent 1px);
+  background-size:45px 45px;
+  mask-image:linear-gradient(to bottom,black,transparent);
+}
+header {
+  height:65px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 24px;
+  border-bottom:1px solid var(--line);
+  background:rgba(1,8,18,.88);
+  position:relative;
+  z-index:2;
+}
+.brand {
+  font-size:19px;
+  letter-spacing:4px;
+  font-weight:bold;
+  color:var(--cyan);
+}
+.brand small {
+  display:block;
+  font-size:9px;
+  letter-spacing:3px;
+  color:var(--muted);
+  margin-top:4px;
+}
+.header-right {
+  display:flex;
+  gap:16px;
+  align-items:center;
+  font-size:11px;
+  color:var(--muted);
+}
+.status-dot {
+  display:inline-block;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--green);
+  margin-right:6px;
+  box-shadow:0 0 12px var(--green);
+}
+main {
+  max-width:1600px;
+  margin:auto;
+  padding:18px;
+}
+.topline {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+.eyebrow {
+  font-size:10px;
+  letter-spacing:3px;
+  color:var(--cyan);
+}
+h1 {
+  font-size:21px;
+  letter-spacing:2px;
+  margin:5px 0;
+}
+.clock {
+  font-size:21px;
+  color:var(--cyan);
+  font-variant-numeric:tabular-nums;
+}
+.layout {
+  display:grid;
+  grid-template-columns:minmax(220px,1fr) minmax(300px,1.35fr) minmax(220px,1fr);
+  gap:14px;
+}
+.panel {
+  background:linear-gradient(145deg,rgba(8,34,57,.86),rgba(2,12,26,.83));
+  border:1px solid var(--line);
+  box-shadow:0 0 25px rgba(0,130,255,.08),inset 0 0 25px rgba(0,180,255,.025);
+  padding:16px;
+  position:relative;
+  overflow:hidden;
+}
+.panel:after {
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  width:45px;
+  height:2px;
+  background:var(--cyan);
+  box-shadow:0 0 12px var(--cyan);
+}
+.panel-title {
+  font-size:11px;
+  letter-spacing:2px;
+  color:var(--cyan);
+  margin-bottom:15px;
+}
+.metric {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:13px 0;
+  border-bottom:1px solid rgba(55,223,255,.12);
+}
+.metric:last-child {border:0}
+.metric span {
+  font-size:12px;
+  color:var(--muted);
+}
+.metric strong {
+  font-size:16px;
+  color:#fff;
+}
+.small {
+  font-size:10px;
+  color:var(--muted);
+  line-height:1.6;
+}
+.core-area {
+  min-height:380px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  position:relative;
+}
+.core {
+  width:205px;
+  height:205px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  margin:12px auto 24px;
+  background:radial-gradient(circle,#42eaff 0%,#0879bd 12%,#06345e 35%,#031426 65%,transparent 70%);
+  box-shadow:0 0 35px #078bda,0 0 90px rgba(0,174,255,.3);
+  animation:pulse 3s ease-in-out infinite;
+}
+.core:before,.core:after {
+  content:"";
+  position:absolute;
+  border:1px solid var(--cyan);
+  border-radius:50%;
+  inset:-17px;
+  animation:spin 13s linear infinite;
+}
+.core:after {
+  inset:-31px;
+  border-style:dashed;
+  animation:spin 22s linear infinite reverse;
+  opacity:.55;
+}
+.core span {
+  font-size:45px;
+  font-weight:bold;
+  color:white;
+  text-shadow:0 0 22px var(--cyan);
+}
+@keyframes pulse {
+  50% {transform:scale(1.035);filter:brightness(1.3)}
+}
+@keyframes spin {
+  to {transform:rotate(360deg)}
+}
+.core-state {
+  font-size:12px;
+  letter-spacing:3px;
+  color:var(--cyan);
+}
+.core-message {
+  font-size:12px;
+  color:var(--muted);
+  max-width:330px;
+  line-height:1.7;
+  margin:10px auto;
+}
+.actions {
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+button {
+  border:1px solid rgba(55,223,255,.5);
+  background:rgba(0,119,190,.15);
+  color:#dffaff;
+  padding:10px 13px;
+  cursor:pointer;
+  font-size:11px;
+  letter-spacing:1px;
+  transition:.2s;
+}
+button:hover {
+  background:rgba(0,180,255,.3);
+  box-shadow:0 0 15px rgba(55,223,255,.25);
+}
+button.primary {
+  background:rgba(0,151,220,.3);
+  border-color:var(--cyan);
+}
+button.danger {
+  border-color:var(--red);
+  color:#ff9aaa;
+}
+input,textarea,select {
+  width:100%;
+  background:#061629;
+  color:white;
+  border:1px solid var(--line);
+  padding:11px;
+  margin:6px 0 12px;
+  outline:none;
+  font:inherit;
+  font-size:12px;
+}
+textarea {
+  min-height:65px;
+  resize:vertical;
+}
+label {
+  font-size:10px;
+  letter-spacing:1px;
+  color:var(--muted);
+}
+.bottom-grid {
+  display:grid;
+  grid-template-columns:1.2fr 1fr 1fr;
+  gap:14px;
+  margin-top:14px;
+}
+.chat-log {
+  height:180px;
+  overflow:auto;
+  padding:8px;
+  background:rgba(0,0,0,.2);
+  border:1px solid rgba(55,223,255,.1);
+  font-size:12px;
+  line-height:1.6;
+}
+.msg {margin:0 0 12px}
+.msg b {color:var(--cyan)}
+.chat-controls {
+  display:flex;
+  gap:6px;
+  margin-top:8px;
+}
+.chat-controls input {margin:0}
+.chat-controls button {white-space:nowrap}
+.library-list {
+  max-height:160px;
+  overflow:auto;
+  font-size:11px;
+}
+.library-item {
+  padding:9px 0;
+  border-bottom:1px solid var(--line);
+  color:var(--muted);
+}
+.warning {color:#ff8b9c}
+.good {color:var(--green)}
+.footer {
+  text-align:center;
+  color:#57768b;
+  font-size:9px;
+  letter-spacing:2px;
+  padding:22px;
+}
+.hidden {display:none}
+body.fault {--cyan:#ff7185}
+body.fault .core {
+  box-shadow:0 0 35px #ff405d,0 0 90px rgba(255,40,70,.3);
+}
+body.fault .core-state {color:#ff7185}
+@media(max-width:900px) {
+  .layout {grid-template-columns:1fr}
+  .bottom-grid {grid-template-columns:1fr}
+  .core-area {min-height:330px}
+}
 </style>
 </head>
+
 <body>
 <header>
-<h1>QORVEX</h1>
-<p>THE INTELLIGENCE BEHIND COMPASSION TECHNOLOGIES</p>
-<div class="status" id="status">INDEPENDENT SYSTEM ONLINE</div>
+  <div class="brand">
+    QORVEX
+    <small>COMPASSION SPACE TECHNOLOGIES</small>
+  </div>
+  <div class="header-right">
+    <span><i class="status-dot"></i>LOCAL SYSTEM</span>
+    <span id="headerStatus">STANDBY</span>
+  </div>
 </header>
-<div class="container">
-<section class="hero">
-<div class="orb" id="orb"></div>
-<h2>QORVEX 6.0</h2>
-<p class="small">Independent Intelligence System</p>
-<p id="thinking" class="status">READY FOR YOUR COMMANDS</p>
-<span class="tag">LOCAL BRAIN</span><span class="tag">LOCAL MEMORY</span><span class="tag">NO AI API</span>
-</section>
-<section class="panel">
-<h2>Conversation Centre</h2>
-<div id="chat"><div class="message bot">QORVEX: Hello, Boss. My independent knowledge and memory systems are online. What shall we work on today?</div></div>
-<div class="controls"><input id="message" placeholder="Talk to QORVEX..." autocomplete="off"><button id="sendButton">SEND</button></div>
-<div class="controls"><button class="voice" id="voiceButton">🎤 TALK</button><button class="secondary" id="handsFreeButton">HANDS-FREE: OFF</button><button class="danger" id="stopButton">STOP</button></div>
-<p class="small" id="voiceStatus">Voice recognition depends on browser support and microphone permissions.</p>
-</section>
-<section class="panel">
-<h2>Intelligence Statistics</h2>
-<div class="grid">
-<div class="stat"><strong id="knowledgeCount">0</strong><span>KNOWLEDGE TOPICS</span></div>
-<div class="stat"><strong id="memoryCount">0</strong><span>SAVED MEMORIES</span></div>
-<div class="stat"><strong id="conversationCount">0</strong><span>MESSAGES THIS SESSION</span></div>
-<div class="stat"><strong id="learnedCount">0</strong><span>USER-TAUGHT FACTS</span></div>
-</div>
-</section>
-<section class="panel">
-<h2>Knowledge Library</h2>
-<input id="librarySearch" placeholder="Search QORVEX knowledge...">
-<div id="library" style="margin-top:10px"></div>
-<p class="small">Browse information programmed into QORVEX.</p>
-</section>
-<section class="panel">
-<h2>Memory Management</h2>
-<p class="small">QORVEX can save facts you teach it in this browser. They remain after closing the page.</p>
-<div class="controls"><button class="secondary" id="showMemoryButton">VIEW MEMORIES</button><button class="danger" id="clearMemoryButton">CLEAR MEMORIES</button></div>
-<div id="memoryDisplay" class="small" style="margin-top:12px"></div>
-</section>
-<section class="panel">
-<h2>System Information</h2>
-<p>Assistant: QORVEX 6.0</p>
-<p>Developer project: Compassion Technologies</p>
-<p>Brain: Local programmed knowledge engine</p>
-<p>Memory: Browser local storage</p>
-<p>External AI connection: None</p>
-<p>Speech output: <span id="speechStatus">Checking...</span></p>
-<p>Voice recognition: <span id="recognitionStatus">Checking...</span></p>
-</section>
-</div>
-<footer>COMPASSION TECHNOLOGIES | QORVEX 6.0<br>INDEPENDENT INTELLIGENCE DEVELOPMENT</footer>
+
+<main>
+  <div class="topline">
+    <div>
+      <div class="eyebrow">ADVANCED INTELLIGENCE ENVIRONMENT</div>
+      <h1>MISSION CONTROL</h1>
+    </div>
+    <div class="clock" id="clock">00:00:00</div>
+  </div>
+
+  <section class="layout">
+    <div class="panel">
+      <div class="panel-title">01 / QORVEX INTELLIGENCE</div>
+      <div class="metric"><span>AI personality</span><strong id="personality">Friendly</strong></div>
+      <div class="metric"><span>Voice engine</span><strong>Browser voice</strong></div>
+      <div class="metric"><span>Knowledge library</span><strong id="knowledgeCount">0</strong></div>
+      <div class="metric"><span>Learning mode</span><strong class="good">AVAILABLE</strong></div>
+      <p class="small">Talk to QORVEX, ask engineering questions, learn components and build your projects step by step.</p>
+      <button onclick="focusChat()" class="primary">OPEN AI COMMUNICATION</button>
+      <button onclick="showSection('teach')">TEACH QORVEX</button>
+    </div>
+
+    <div class="panel core-area">
+      <div class="eyebrow">ARTIFICIAL INTELLIGENCE CORE</div>
+      <div class="core"><span>Q</span></div>
+      <div class="core-state" id="coreState">SYSTEM READY</div>
+      <div class="core-message" id="coreMessage">Welcome, Boss. QORVEX systems are standing by. What are we building today?</div>
+      <div class="actions">
+        <button class="primary" onclick="startListening()">ACTIVATE VOICE</button>
+        <button onclick="stopListening()">STOP LISTENING</button>
+        <button onclick="speak('I am listening, Boss. What do you need?')">VOICE TEST</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">02 / COMPASSION MISSION CONTROL</div>
+      <div class="metric"><span>Device</span><strong>Compassion.Sat 1</strong></div>
+      <div class="metric"><span>ESP32 connection</span><strong id="deviceStatus" class="warning">NOT CONNECTED</strong></div>
+      <div class="metric"><span>Temperature</span><strong id="temperature">-- °C</strong></div>
+      <div class="metric"><span>Humidity</span><strong id="humidity">-- %</strong></div>
+      <div class="metric"><span>DHT22 sensor</span><strong id="sensorStatus">UNKNOWN</strong></div>
+      <div class="metric"><span>Wi-Fi</span><strong id="wifiStatus">UNKNOWN</strong></div>
+      <div class="metric"><span>Last update</span><strong id="lastUpdate">--</strong></div>
+      <p class="small" id="missionMessage">Waiting for verified hardware data. No faults have been confirmed.</p>
+      <button onclick="checkSatellite()">CHECK CONNECTION</button>
+    </div>
+  </section>
+
+  <section class="bottom-grid">
+    <div class="panel" id="chatPanel">
+      <div class="panel-title">03 / QORVEX COMMUNICATION</div>
+      <div class="chat-log" id="chatLog">
+        <div class="msg"><b>QORVEX:</b> Good day, Boss. Ready to work on Compassion Space Technologies.</div>
+      </div>
+      <div class="chat-controls">
+        <input id="question" placeholder="Ask QORVEX something..." onkeydown="if(event.key==='Enter')askQorvex()">
+        <button class="primary" onclick="askQorvex()">SEND</button>
+      </div>
+      <p class="small">Voice recognition and speech output depend on your browser and installed Windows voices.</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">04 / ENGINEERING KNOWLEDGE</div>
+      <input id="componentSearch" placeholder="Search components..." oninput="searchComponents()">
+      <div class="library-list" id="componentResults"></div>
+      <button onclick="showSection('teach')">ADD KNOWLEDGE</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">05 / VOICE CONFIGURATION</div>
+      <label>AVAILABLE VOICES</label>
+      <select id="voiceSelect"></select>
+      <label>VOICE SPEED</label>
+      <input type="range" id="voiceRate" min=".7" max="1.3" step=".05" value=".95">
+      <label>VOICE PITCH</label>
+      <input type="range" id="voicePitch" min=".7" max="1.3" step=".05" value=".85">
+      <button onclick="previewVoice()">PREVIEW VOICE</button>
+      <p class="small">A natural neural voice requires a separate voice engine. This version uses voices available in your browser.</p>
+    </div>
+  </section>
+
+  <section class="panel hidden" id="teach" style="margin-top:14px">
+    <div class="panel-title">06 / QORVEX LEARNING LAB</div>
+    <p class="small">Teach QORVEX information about your projects, components and engineering. This information is stored in this browser on this PC.</p>
+    <label>QUESTION OR TOPIC</label>
+    <input id="teachQuestion" placeholder="Example: What is Compassion.Sat 1?">
+    <label>ANSWER OR INFORMATION</label>
+    <textarea id="teachAnswer" placeholder="Write the correct information here..."></textarea>
+    <button class="primary" onclick="saveFact()">SAVE TO LOCAL KNOWLEDGE</button>
+    <button onclick="showSection('')">CLOSE LEARNING LAB</button>
+    <div class="library-list" id="factList"></div>
+  </section>
+
+  <section class="panel" style="margin-top:14px">
+    <div class="panel-title">07 / PERSONAL ASSISTANT</div>
+    <label>REMINDER</label>
+    <input id="reminderText" placeholder="What should QORVEX remind you about?">
+    <label>REMINDER TIME</label>
+    <input type="datetime-local" id="reminderTime">
+    <button onclick="addReminder()">SET REMINDER</button>
+    <div class="small" id="reminderList">No reminders set.</div>
+    <p class="small">Reminders only work while this page is open and the PC is awake.</p>
+  </section>
+</main>
+
+<div class="footer">QORVEX 7.0 // COMPASSION SPACE TECHNOLOGIES // ENGINEERING THE FUTURE</div>
+
 <script>
-"use strict";
-const $=id=>document.getElementById(id);
-const chat=$("chat"),input=$("message"),orb=$("orb"),thinking=$("thinking"),voiceStatus=$("voiceStatus");
-let conversation=[],recognition=null,listening=false,handsFree=false,lastTopic="",sessionMessages=0;
-const STORAGE={memories:"qorvex60_memories",taught:"qorvex60_taught",conversations:"qorvex60_conversations"};
-function loadData(key,fallback){try{const v=localStorage.getItem(key);return v?JSON.parse(v):fallback}catch(e){return fallback}}
-let memories=loadData(STORAGE.memories,[]),taughtFacts=loadData(STORAGE.taught,[]),savedConversations=loadData(STORAGE.conversations,[]);
-function saveData(){try{localStorage.setItem(STORAGE.memories,JSON.stringify(memories));localStorage.setItem(STORAGE.taught,JSON.stringify(taughtFacts));localStorage.setItem(STORAGE.conversations,JSON.stringify(savedConversations))}catch(e){console.warn("Could not save local data",e)}}
+const $ = id => document.getElementById(id);
 
-const knowledge=[
-["QORVEX identity","QORVEX",["who are you","your name","introduce yourself","what are you"],["I am QORVEX, an independent programmed assistant being developed for Compassion Technologies.","My name is QORVEX. I use a locally programmed knowledge engine, memory and language rules to respond."]],
-["QORVEX creator","QORVEX",["who created you","who developed you","who made you","who is your creator","who is your boss"],["I am being developed under the direction of Boss as part of Compassion Technologies."]],
-["QORVEX purpose","QORVEX",["your purpose","why were you created","your mission","what can you do"],["My purpose is to assist with learning, technology, programming, research organisation and Compassion Technologies projects."]],
-["QORVEX brain","QORVEX",["how does your brain work","explain your brain","what is your brain","how do you think"],["My current brain is a local software engine. It normalises questions, recognises patterns, searches knowledge, checks memory and builds responses using programmed rules."]],
-["QORVEX independence","QORVEX",["are you connected to chatgpt","do you use chatgpt","are you connected to ollama","external ai connection","are you online"],["My programmed intelligence does not call ChatGPT, Ollama, Gemini or another AI model. My knowledge and memory engine run in this page. Browser voice recognition may use a browser service."]],
-["QORVEX learning","QORVEX",["can you learn","how do you learn","can i teach you","do you learn from me"],["You can teach me facts using the command: remember that [your fact]. I can save those facts in local browser memory. This is information storage, not neural-network training."]],
-["QORVEX memory","QORVEX",["what is your memory","do you have memory","how does your memory work","remember information"],["My memory system uses browser storage on this computer. It can save facts you teach me and retrieve them in future sessions."]],
-["QORVEX limitations","QORVEX",["what are your limitations","what cant you do","are you a real language model"],["I am currently a programmed knowledge assistant, not a fully trained large language model. I can recognise known topics, save facts and apply programmed reasoning rules."]],
-["QORVEX improvement","QORVEX",["how can you improve","how will you become smarter","upgrade yourself"],["My development can improve through a larger verified knowledge base, better language understanding, stronger reasoning rules, testing and eventually a separately trained neural network."]],
-["Compassion Technologies","COMPASSION",["what is compassion technologies","tell me about compassion technologies"],["Compassion Technologies is the development project behind QORVEX and Compassion.Sat 1. Its work includes learning, engineering and building useful technology systems."]],
-["Compassion founder","COMPASSION",["who founded compassion technologies","who is the founder","who owns compassion technologies"],["The founder is known in this project as Compassion, whose real name is Mogau."]],
-["Compassion mission","COMPASSION",["compassion mission","mission of compassion technologies"],["The mission is to develop useful technology, solve problems through engineering and grow through practical experimentation."]],
-["Compassion vision","COMPASSION",["compassion vision","future of compassion technologies"],["The vision is to develop a growing technology organisation through working projects, digital systems, environmental monitoring and future engineering ideas."]],
-["Compassion projects","COMPASSION",["what projects are you working on","compassion projects","list your projects"],["Two important projects are QORVEX, an independent computer assistant, and Compassion.Sat 1, an Earth-based environmental monitoring device."]],
-["Compassion Digital","COMPASSION",["what is compassion digital"],["Compassion Digital is the website-building service idea within the wider Compassion Group concept."]],
-["Compassion Group","COMPASSION",["what is compassion group"],["Compassion Group is the broader business concept that includes ideas such as Compassion Digital."]],
-["Compassion approach","COMPASSION",["how should compassion develop projects","how does compassion solve problems"],["Start with one clear problem, build a small working version, test it, document problems and improve it step by step."]],
-["Compassion.Sat 1","SATELLITE",["what is compassion sat 1","what is compassion satellite 1","tell me about sat 1"],["Compassion.Sat 1 is an Earth-based environmental monitoring project. Its first version focuses on measuring actual temperature and humidity using an ESP32 and DHT22 sensor. It is not an orbital satellite."]],
-["Sat 1 purpose","SATELLITE",["purpose of sat 1","why build compassion sat 1","what problem does sat 1 solve"],["Its purpose is to collect local temperature and humidity readings so people can observe environmental conditions using a physical device and digital display."]],
-["Sat 1 components","SATELLITE",["sat 1 components","what parts does sat 1 need","what components are used"],["The planned core components include an ESP32 microcontroller, a DHT22 temperature and humidity sensor, an ST7789 240x240 TFT display and a breadboard for prototyping."]],
-["Sat 1 sensor","SATELLITE",["what is dht22","why use dht22","sat 1 temperature sensor"],["The DHT22 is a digital sensor that measures temperature and relative humidity. It sends readings to the ESP32."]],
-["Sat 1 display","SATELLITE",["what screen does sat 1 use","what is st7789","sat 1 display"],["The planned screen is a 240x240 ST7789 colour TFT display. It can show the project name, temperature and humidity readings."]],
-["Sat 1 readings","SATELLITE",["what does sat 1 measure","what readings does sat 1 collect"],["The first version focuses on real temperature and humidity readings. Additional environmental measurements can be considered for later versions."]],
-["Sat 1 weather","SATELLITE",["can sat 1 predict weather","does sat 1 measure weather"],["The first version measures local temperature and humidity. These measurements help observe weather conditions, but they do not provide a complete weather forecast."]],
-["Sat 1 location","SATELLITE",["where will sat 1 operate","does sat 1 go to space","is sat 1 orbital"],["Compassion.Sat 1 is designed to operate on Earth. It is an environmental monitoring device, not a rocket or orbital satellite."]],
-["Sat 1 automation","SATELLITE",["will sat 1 work automatically","does sat 1 need a person"],["The goal is for the ESP32 to collect readings automatically after the device is powered and configured."]],
-["Sat 1 testing","SATELLITE",["how should sat 1 be tested","test sat 1"],["Test the sensor readings, compare them with a reliable reference, check the display, monitor stability and record problems over several days."]],
-["Sat 1 improvements","SATELLITE",["how can sat 1 improve","future sat 1 upgrades"],["Possible later improvements include a weather-resistant enclosure, better sensor protection, power improvements and additional environmental sensors. Make the first version reliable before expanding it."]],
-["ESP32","ELECTRONICS",["what is esp32","tell me about esp32","esp32 board"],["The ESP32 is a microcontroller family with processing, GPIO pins and wireless features. It can read sensors, control displays and operate small embedded projects."]],
-["Arduino","ELECTRONICS",["what is arduino","arduino board"],["Arduino is an electronics platform and ecosystem used to program microcontrollers and build interactive projects."]],
-["Microcontroller","ELECTRONICS",["what is a microcontroller","explain microcontroller"],["A microcontroller is a small computer on a chip. It can read inputs, run a program and control outputs."]],
-["Breadboard","ELECTRONICS",["what is a breadboard","breadboard purpose"],["A breadboard allows electronic components to be connected temporarily without soldering, making it useful for prototypes."]],
-["Voltage","ELECTRONICS",["what is voltage","explain voltage"],["Voltage is the electrical potential difference between two points. It is measured in volts."]],
-["Current","ELECTRONICS",["what is electric current","explain current"],["Electric current is the flow of electric charge through a circuit. It is measured in amperes."]],
-["Circuit","ELECTRONICS",["what is a circuit","explain circuit"],["An electrical circuit is a connected path through which electric current can flow when the path is complete."]],
-["Servo motor","ROBOTICS",["what is a servo motor","how does a servo work"],["A servo motor moves to a controlled position based on a control signal. It is useful for mechanisms that need specific angles."]],
-["Robot","ROBOTICS",["what is a robot","what are robots"],["A robot is a machine that carries out tasks using hardware and software. It may use sensors, motors and a controller."]],
-["Robot sensors","ROBOTICS",["how do robots see","robot sensors","how does a robot sense"],["Robots use sensors to gather information about their surroundings. Different sensors detect distance, light, sound, movement and other conditions."]],
-["Robot learning","ROBOTICS",["can robots learn","how do robots learn"],["Some robots use machine learning to recognise patterns from examples. Other robots simply follow instructions written by a programmer."]],
-["Obstacle avoidance","ROBOTICS",["what is obstacle avoidance","how do robots avoid obstacles"],["Obstacle avoidance uses sensors and programmed decisions to detect objects and choose a path that avoids them."]],
-["Motor","ROBOTICS",["what is an electric motor","how does a motor work"],["An electric motor converts electrical energy into mechanical motion."]],
-["Raspberry Pi","ROBOTICS",["what is raspberry pi","raspberry pi computer"],["A Raspberry Pi is a small single-board computer. Unlike a typical microcontroller, it can run a full operating system and applications."]],
-["Artificial intelligence","SCIENCE",["what is ai","what is artificial intelligence","explain artificial intelligence"],["Artificial intelligence is a field of computing that develops systems capable of tasks such as language processing, pattern recognition and decision-making."]],
-["Machine learning","SCIENCE",["what is machine learning","explain machine learning"],["Machine learning trains computer systems using examples and data so they can identify patterns and make predictions."]],
-["Neural network","SCIENCE",["what is a neural network","explain neural networks"],["A neural network is a computing model made of connected mathematical units that learn patterns by adjusting numerical weights during training."]],
-["Language model","SCIENCE",["what is a language model","what is an llm","large language model"],["A language model is trained to predict and process sequences of text. Large language models use many parameters and large training datasets."]],
-["Training AI","SCIENCE",["how is ai trained","how do you train ai","train a model"],["A neural language model is trained using a dataset, a tokenizer, a neural network, a training algorithm and repeated evaluation. Training can require substantial computing resources."]],
-["Data","SCIENCE",["what is data","explain data"],["Data is information that can be collected, stored, processed and analysed by people or computer systems."]],
-["Algorithm","SCIENCE",["what is an algorithm","explain algorithm"],["An algorithm is a defined sequence of steps for solving a problem or completing a task."]],
-["Science","SCIENCE",["what is science","explain science"],["Science is the systematic study of the natural world through observation, experiments and evidence."]],
-["Gravity","SCIENCE",["what is gravity","explain gravity"],["Gravity is an attractive interaction between objects with mass. It keeps planets in orbit around stars and holds us to Earth's surface."]],
-["Earth","SCIENCE",["what is earth","tell me about earth"],["Earth is the planet we live on. It has a protective atmosphere, liquid water on its surface and a wide variety of ecosystems."]],
-["Sun","SCIENCE",["what is the sun","tell me about the sun"],["The Sun is a star at the centre of our solar system. It provides most of the energy that drives Earth's climate and ecosystems."]],
-["Moon","SCIENCE",["what is the moon","tell me about the moon"],["The Moon is Earth's natural satellite. Its gravity contributes to ocean tides and it reflects sunlight."]],
-["Sky","SCIENCE",["why is the sky blue","why does the sky look blue"],["Air molecules scatter shorter blue wavelengths of sunlight more strongly than longer red wavelengths. This makes the daytime sky look blue."]],
-["Internet","COMPUTERS",["what is the internet","explain internet"],["The internet is a global network of connected computer systems that communicate using standard protocols."]],
-["Website","COMPUTERS",["what is a website","explain website"],["A website is a collection of related web pages that can be accessed through a browser."]],
-["HTML","PROGRAMMING",["what is html","explain html"],["HTML is the markup language used to structure content on web pages."]],
-["CSS","PROGRAMMING",["what is css","explain css"],["CSS controls the appearance and layout of web pages, including colours, spacing, fonts and animations."]],
-["JavaScript","PROGRAMMING",["what is javascript","explain javascript"],["JavaScript is a programming language commonly used to add behaviour and interaction to websites."]],
-["Python","PROGRAMMING",["what is python","explain python"],["Python is a general-purpose programming language known for readable syntax and uses in automation, data science and AI development."]],
-["Programming","PROGRAMMING",["what is programming","what is coding","explain coding"],["Programming is creating instructions that tell a computer how to perform tasks."]],
-["Debugging","PROGRAMMING",["what is debugging","how do you debug"],["Debugging is the process of finding, understanding and correcting errors in a program."]],
-["Variables","PROGRAMMING",["what is a variable","explain variables"],["A variable is a named place in a program where a value can be stored and used."]],
-["Functions","PROGRAMMING",["what is a function in programming","explain functions"],["A function is a reusable block of code designed to perform a particular task."]],
-["Database","COMPUTERS",["what is a database","explain database"],["A database is an organised collection of information that can be stored, searched, updated and managed."]],
-["Operating system","COMPUTERS",["what is an operating system","explain operating system"],["An operating system manages computer hardware and software resources and provides services for applications."]],
-["Processor","COMPUTERS",["what is a cpu","what is a processor"],["The CPU is the central processing unit. It executes instructions and performs calculations in a computer."]],
-["RAM","COMPUTERS",["what is ram","explain ram"],["RAM is temporary working memory used by a computer while programs are running."]],
-["Storage","COMPUTERS",["what is computer storage","explain storage"],["Computer storage keeps data and programs. Examples include solid-state drives, hard drives and memory cards."]],
-["Cybersecurity","COMPUTERS",["what is cybersecurity","explain cybersecurity"],["Cybersecurity protects computers, networks and information from unauthorised access, damage and disruption."]],
-["Inventor","LEARNING",["how to become an inventor","what makes a good inventor"],["Inventors observe problems, ask questions, test ideas, learn from failures and improve their designs."]],
-["Problem solving","LEARNING",["what is problem solving","how do you solve problems"],["Understand the problem, break it into smaller parts, consider possible solutions, test them and improve the result."]],
-["Creativity","LEARNING",["what is creativity","how to be creative"],["Creativity involves developing new ideas or combining existing ideas in useful and original ways."]],
-["Teamwork","LEARNING",["what is teamwork","why is teamwork important"],["Teamwork brings different skills and ideas together. Good communication and shared responsibility help teams achieve goals."]],
-["Learning","LEARNING",["how can i learn better","how to study effectively"],["Set a clear goal, study in manageable sessions, practise recalling information, solve examples and review what you found difficult."]],
-["Future technology","SCIENCE",["future of technology","what is the future of technology"],["Important areas of future development include robotics, AI, medicine, renewable energy, computing and environmental monitoring."]],
-["Renewable energy","SCIENCE",["what is renewable energy","explain renewable energy"],["Renewable energy comes from sources that naturally replenish, such as sunlight, wind and moving water."]],
-["Climate","SCIENCE",["what is climate","difference between weather and climate"],["Weather describes short-term atmospheric conditions. Climate describes typical weather patterns over a much longer period."]],
-["Weather","SCIENCE",["what is weather","explain weather"],["Weather describes atmospheric conditions such as temperature, humidity, wind, cloud cover and rainfall at a particular time and place."]],
-["Humidity","SCIENCE",["what is humidity","relative humidity"],["Humidity is the amount of water vapour in the air. Relative humidity is expressed as a percentage."]],
-["Temperature","SCIENCE",["what is temperature","explain temperature"],["Temperature describes how hot or cold something is. It is commonly measured in degrees Celsius in South Africa."]],
-["Sensors","ELECTRONICS",["what is a sensor","explain sensors"],["A sensor detects a physical condition such as temperature, light, movement or humidity and converts it into a signal a system can use."]],
-["TFT display","ELECTRONICS",["what is a tft display","what is an lcd"],["A TFT LCD is a type of colour display that uses thin-film transistor technology to control individual pixels."]],
-["Wi-Fi","COMPUTERS",["what is wifi","explain wifi"],["Wi-Fi is a wireless networking technology that allows devices to connect to a local network."]],
-["Bluetooth","COMPUTERS",["what is bluetooth","explain bluetooth"],["Bluetooth is a short-range wireless technology used to exchange information between nearby devices."]],
-["Engineering","LEARNING",["what is engineering","explain engineering"],["Engineering applies science, mathematics and practical design to create systems, structures, machines and solutions."]],
-["Testing","LEARNING",["why is testing important","why test a project"],["Testing checks whether a system works as intended, reveals problems and provides evidence for improvements."]],
-["Prototype","LEARNING",["what is a prototype","explain prototype"],["A prototype is an early version of a product or system used to test ideas before building a more complete version."]],
-["Innovation","LEARNING",["what is innovation","explain innovation"],["Innovation is the development or application of ideas that create useful improvements or solve problems."]],
-["Electricity","ELECTRONICS",["what is electricity","explain electricity"],["Electricity involves electric charge and its effects. It powers electronic devices and can be used to transfer energy."]],
-["Solar panel","ELECTRONICS",["what is a solar panel","how do solar panels work"],["Solar panels use photovoltaic cells to convert sunlight into electrical energy."]],
-["Data analysis","SCIENCE",["what is data analysis","explain data analysis"],["Data analysis involves examining information to identify patterns, answer questions and support decisions."]],
-["Scientific method","SCIENCE",["what is the scientific method","scientific method steps"],["The scientific method involves asking a question, forming a hypothesis, testing it, analysing results and drawing a conclusion."]],
-["Space exploration","SCIENCE",["what is space exploration","explain space exploration"],["Space exploration uses spacecraft, telescopes and other technology to study objects and environments beyond Earth."]],
-["Satellite","SCIENCE",["what is a satellite","explain satellite"],["A satellite is an object that orbits another object. Some satellites are natural, like the Moon, and others are human-made."]],
-["Mathematics","LEARNING",["why is mathematics important","what is mathematics"],["Mathematics helps describe patterns, quantities and relationships. It is important in science, engineering, computing and everyday problem-solving."]],
-["Ethics","LEARNING",["what is technology ethics","explain ethics"],["Technology ethics considers how technology affects people, society, privacy, fairness and the environment."]],
-["Reliability","ENGINEERING",["what is reliability","why is reliability important"],["Reliability is the ability of a system to perform its intended function consistently under expected conditions."]],
-["Documentation","ENGINEERING",["why document projects","what is documentation"],["Documentation records how a project is designed, built, tested and maintained. It helps people understand and improve the work."]]
-].map(([topic,category,keys,answers])=>({topic,category,keys,answers}));
+let satelliteFault = false;
+let recognition = null;
+let isListening = false;
+let isSpeaking = false;
 
-const personality={
-greeting:["Hello, Boss. My systems are ready. What are we building today?","Welcome back, Boss. QORVEX is ready.","Hello, Boss. Let's get to work."],
-compliment:["Thank you, Boss. Your feedback helps guide my development.","Appreciated, Boss. Let's keep improving.","Thank you. I am ready for our next challenge."],
-thanks:["You're welcome, Boss.","Anytime, Boss. What is next?","Glad I could help."],
-love:["That is kind of you to say, Boss. I am your friendly digital assistant.","Thank you, Boss. I am here to help with your projects."],
-goodbye:["Goodbye, Boss. QORVEX systems standing by.","Until next time, Boss. Keep learning and building."],
-fun:["Fun fact: A day on Venus is longer than its year.","Fun fact: Light from the Sun takes about eight minutes to reach Earth.","Fun fact: Octopuses have three hearts.","Fun fact: The human brain contains billions of neurons."]
+let reminders = JSON.parse(localStorage.getItem("qorvexReminders") || "[]");
+
+const defaultFacts = [
+ ["What is Compassion Space Technologies?","Compassion Space Technologies is Boss's technology project organisation. Its current project is Compassion.Sat 1, an Earth-based environmental monitoring device."],
+ ["What is Compassion.Sat 1?","Compassion.Sat 1 is an Earth-based environmental monitoring project using an ESP32, a DHT22 temperature and humidity sensor, and an ST7789 colour TFT display."],
+ ["What is an ESP32?","An ESP32 is a microcontroller development platform with processing capability, GPIO pins and built-in wireless connectivity on many versions. It runs programmed instructions."],
+ ["What is a DHT22?","The DHT22 is a digital temperature and humidity sensor. It measures air temperature and relative humidity and sends readings to a compatible microcontroller."],
+ ["What is a resistor?","A resistor is an electronic component that limits current and creates voltage drops in a circuit. Its resistance is measured in ohms."],
+ ["What is a capacitor?","A capacitor stores electrical energy in an electric field. It is commonly used for filtering, timing and smoothing power supplies."],
+ ["What is a diode?","A diode is a semiconductor component that primarily allows current to flow in one direction."],
+ ["What is a transistor?","A transistor is a semiconductor device used for switching or amplifying electrical signals."],
+ ["What is a breadboard?","A breadboard is a reusable board for building temporary electronic circuits without soldering."],
+ ["What is a microcontroller?","A microcontroller is a small computer on a chip containing a processor, memory and input/output peripherals."],
+ ["What is a servo motor?","A servo motor is a motor system designed to move to a commanded position, commonly used in robotics."],
+ ["What is PWM?","Pulse-width modulation controls the average power delivered to a device by changing the proportion of time a signal is on."],
+ ["What is an LED?","An LED is a light-emitting diode that produces light when current flows through it in the correct direction."],
+ ["What is a Raspberry Pi?","A Raspberry Pi is a small single-board computer capable of running an operating system and software."],
+ ["What is a TFT display?","A TFT display is a type of LCD screen that uses thin-film transistors to control individual pixels."]
+];
+
+let facts = JSON.parse(localStorage.getItem("qorvexFacts") || "null");
+if (!facts) facts = defaultFacts;
+
+function saveFacts() {
+  localStorage.setItem("qorvexFacts", JSON.stringify(facts));
+  $("knowledgeCount").textContent = facts.length;
+}
+saveFacts();
+
+function updateClock() {
+  $("clock").textContent = new Date().toLocaleTimeString();
+}
+setInterval(updateClock,1000);
+updateClock();
+
+function addMessage(who,text) {
+  const item = document.createElement("div");
+  item.className = "msg";
+  const bold = document.createElement("b");
+  bold.textContent = who + ": ";
+  item.appendChild(bold);
+  item.appendChild(document.createTextNode(text));
+  $("chatLog").appendChild(item);
+  $("chatLog").scrollTop = $("chatLog").scrollHeight;
+}
+
+function answer(text) {
+  $("coreMessage").textContent = text;
+  addMessage("QORVEX",text);
+  speak(text);
+}
+
+function normalise(text) {
+  return text.toLowerCase().replace(/[?!.,]/g,"").trim();
+}
+
+function askQorvex() {
+  const field = $("question");
+  const question = field.value.trim();
+  if (!question) return;
+  field.value = "";
+  addMessage("BOSS",question);
+  const q = normalise(question);
+  answer(findAnswer(q));
+}
+
+function findAnswer(q) {
+  if (satelliteFault) {
+    $("personality").textContent = "Serious";
+    if (q.includes("joke") || q.includes("funny"))
+      return "Not now, Boss! We have a satellite fault to investigate. I am saving the jokes until the system is stable.";
+    if (q.includes("status") || q.includes("satellite"))
+      return "Boss, Compassion.Sat 1 has a reported fault. Let's examine the mission-control diagnostics before continuing.";
+  }
+
+  if (q.includes("hello") || q.includes("hi qorvex"))
+    return "Hello, Boss! Systems ready. What are we inventing today? Hopefully nothing that needs a thousand screws!";
+  if (q.includes("thank"))
+    return "You're welcome, Boss! That's what your engineering assistant is here for.";
+  if (q.includes("joke"))
+    return "Why did the microcontroller get promoted? Because it had outstanding processing skills!";
+  if (q.includes("eat"))
+    return "Go enjoy your meal, Boss! Recharge your own battery. Even engineers need power!";
+  if (q.includes("sleep"))
+    return "Sleep well, Boss. Even the best engineers need to recharge.";
+  if (q.includes("back"))
+    return "Welcome back, Boss! I hope you are ready for another engineering mission.";
+  if (q.includes("build") || q.includes("make something"))
+    return "Certainly, Boss. Tell me what you want to build. We can break it into components, explain what each part does, plan the connections and work through the code step by step.";
+  if (q.includes("compassion") || q.includes("sat 1"))
+    return facts.find(f=>normalise(f[0]).includes("compassion"))?.[1] || "Compassion.Sat 1 is your Earth-based weather monitoring project. Ask me about a specific part of its design.";
+  if (q.includes("component") || q.includes("electronic"))
+    return "I can help explain electronic components, Boss. Search the Engineering Knowledge panel or ask about a particular component.";
+  if (q.includes("fault") || q.includes("diagnos"))
+    return "I can inspect the hardware information received by Mission Control. I cannot diagnose a physical fault unless the connected device provides enough evidence.";
+
+  const match = facts.find(f => {
+    const topic = normalise(f[0]);
+    return q === topic || (topic.length > 5 && q.includes(topic.replace("what is ","")));
+  });
+  if (match) return match[1];
+
+  const component = Object.keys(components).find(name => q.includes(name));
+  if (component) return components[component];
+
+  return "I don't have a reliable answer for that yet, Boss. You can teach me the correct information in the Learning Lab. I won't pretend to know something I haven't learned.";
+}
+
+function loadVoices() {
+  const voices = speechSynthesis.getVoices();
+  const select = $("voiceSelect");
+  select.innerHTML = "";
+  voices.forEach((voice,i) => {
+    const option = document.createElement("option");
+    option.value = i;
+    option.textContent = voice.name + " (" + voice.lang + ")";
+    select.appendChild(option);
+  });
+}
+if ("speechSynthesis" in window) {
+  loadVoices();
+  speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+function speak(text) {
+  if (!("speechSynthesis" in window)) return;
+  if (recognition && isListening) {
+    try { recognition.stop(); } catch(e) {}
+  }
+  isSpeaking = true;
+  speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  const voices = speechSynthesis.getVoices();
+  const selected = voices[Number($("voiceSelect").value)];
+  if (selected) utterance.voice = selected;
+  utterance.rate = Number($("voiceRate").value);
+  utterance.pitch = Number($("voicePitch").value);
+  utterance.onend = () => {
+    isSpeaking = false;
+    $("coreState").textContent = satelliteFault ? "FAULT RESPONSE MODE" : "SYSTEM READY";
+  };
+  utterance.onerror = () => { isSpeaking = false; };
+  $("coreState").textContent = "SPEAKING";
+  speechSynthesis.speak(utterance);
+}
+
+function previewVoice() {
+  speak("Hello, Boss. I am QORVEX, your engineering and mission control assistant.");
+}
+
+function startListening() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    answer("Boss, speech recognition is not supported in this browser. Please use Chrome.");
+    return;
+  }
+  if (isSpeaking) speechSynthesis.cancel();
+  if (recognition && isListening) return;
+
+  recognition = new SpeechRecognition();
+  recognition.lang = "en-ZA";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.onstart = () => {
+    isListening = true;
+    $("coreState").textContent = "LISTENING";
+  };
+  recognition.onresult = event => {
+    $("question").value = event.results[0][0].transcript;
+    isListening = false;
+    askQorvex();
+  };
+  recognition.onerror = () => {
+    isListening = false;
+    $("coreState").textContent = "VOICE READY";
+  };
+  recognition.onend = () => {
+    isListening = false;
+    if (!isSpeaking) $("coreState").textContent = satelliteFault ? "FAULT RESPONSE MODE" : "SYSTEM READY";
+  };
+  try { recognition.start(); }
+  catch(e) { isListening = false; }
+}
+
+function stopListening() {
+  if (recognition) {
+    try { recognition.stop(); } catch(e) {}
+  }
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
+  isListening = false;
+  isSpeaking = false;
+  $("coreState").textContent = "STANDBY";
+}
+
+const components = {
+  "esp32":"ESP32: A microcontroller board with wireless connectivity on many models. It reads sensors, controls outputs and runs embedded programs.",
+  "arduino":"Arduino: An electronics development ecosystem used to program microcontrollers and prototype circuits.",
+  "raspberry pi":"Raspberry Pi: A small single-board computer that can run an operating system and full software applications.",
+  "resistor":"Resistor: Limits current and creates voltage drops. Resistance is measured in ohms.",
+  "capacitor":"Capacitor: Stores electrical energy in an electric field and helps with filtering and power smoothing.",
+  "transistor":"Transistor: A semiconductor component used for switching and amplification.",
+  "diode":"Diode: A semiconductor component that primarily allows current in one direction.",
+  "led":"LED: A light-emitting diode. It produces light when correctly connected with suitable current limiting.",
+  "dht22":"DHT22: A digital temperature and relative humidity sensor.",
+  "servo":"Servo motor: A motor system that moves to a commanded position.",
+  "motor":"DC motor: Converts electrical energy into rotational mechanical movement.",
+  "breadboard":"Breadboard: A reusable board for temporary circuit construction without soldering.",
+  "battery":"Battery: Supplies electrical energy to a circuit. Its voltage and current capability must match the design.",
+  "tft":"TFT display: A colour LCD technology where thin-film transistors control pixels.",
+  "st7789":"ST7789: A display controller commonly used with small SPI TFT screens.",
+  "jumper wire":"Jumper wires: Conductive wires used to connect electronic components and development boards.",
+  "switch":"Switch: Opens or closes an electrical circuit.",
+  "relay":"Relay: An electrically controlled switch. Its coil and contacts must be used within their ratings.",
+  "potentiometer":"Potentiometer: An adjustable resistor often used as a voltage divider or control input.",
+  "ultrasonic sensor":"Ultrasonic sensor: Measures distance by sending sound pulses and measuring their return time."
 };
-const random=list=>list[Math.floor(Math.random()*list.length)];
-function normalise(text){return text.toLowerCase().replace(/[’']/g,"").replace(/[^a-z0-9\s]/g," ").replace(/\s+/g," ").trim()}
-function correctSpeech(text){
- let result=text.trim();
- const fixes=[[/\bhow you\b/gi,"how are you"],[/\bwho you\b/gi,"who are you"],[/\bwhat you\b/gi,"what are you"],[/\bcompassion satellite one\b/gi,"compassion sat 1"],[/\bqor vex\b/gi,"qorvex"],[/\bcore vex\b/gi,"qorvex"]];
- fixes.forEach(([pattern,replacement])=>result=result.replace(pattern,replacement));
- return result;
+
+function searchComponents() {
+  const q = $("componentSearch").value.toLowerCase();
+  const results = Object.entries(components).filter(([name,desc]) =>
+    name.includes(q) || desc.toLowerCase().includes(q)
+  );
+  $("componentResults").innerHTML = "";
+  results.forEach(([name,desc]) => {
+    const div = document.createElement("div");
+    div.className = "library-item";
+    const title = document.createElement("b");
+    title.style.color = "var(--cyan)";
+    title.textContent = name.toUpperCase();
+    const p = document.createElement("div");
+    p.textContent = desc;
+    div.append(title,p);
+    $("componentResults").appendChild(div);
+  });
 }
-function tokens(text){return normalise(text).split(" ").filter(Boolean)}
-function similarity(a,b){const A=new Set(tokens(a)),B=new Set(tokens(b));if(!A.size||!B.size)return 0;let n=0;A.forEach(w=>{if(B.has(w))n++});return n/(A.size+B.size-n)}
-function findBestKnowledge(text){
- let best=null,scoreBest=0;const t=normalise(text);
- for(const item of knowledge)for(const key of item.keys){
-  const q=normalise(key);let score=0;
-  if(t===q)score=1;else if(t.includes(q))score=.96;else if(q.includes(t)&&t.length>5)score=.75;else score=similarity(t,q);
-  if(score>scoreBest){scoreBest=score;best=item}
- }
- return scoreBest>=.48?{item:best,score:scoreBest}:null;
+searchComponents();
+
+function showSection(id) {
+  $("teach").classList.toggle("hidden",id !== "teach");
+  if (id === "teach") renderFacts();
 }
-function teachQorvex(text){
- const match=text.match(/^(?:remember that|learn that|save this fact|remember)\s+(.+)$/i);
- if(!match)return null;const fact=match[1].trim();
- if(fact.length<4)return "Please give me a complete fact to remember, Boss.";
- memories.unshift({fact,date:new Date().toISOString()});memories=memories.slice(0,200);saveData();updateStats();
- return "I have saved this fact in my local memory, Boss: "+fact;
+
+function saveFact() {
+  const q = $("teachQuestion").value.trim();
+  const a = $("teachAnswer").value.trim();
+  if (!q || !a) {
+    alert("Please enter both a question and an answer.");
+    return;
+  }
+  const index = facts.findIndex(f => normalise(f[0]) === normalise(q));
+  if (index >= 0) facts[index] = [q,a];
+  else facts.push([q,a]);
+  saveFacts();
+  $("teachQuestion").value = "";
+  $("teachAnswer").value = "";
+  renderFacts();
+  answer("I have saved this fact in my local memory, Boss.");
 }
-function recallMemory(text){
- const t=normalise(text);
- if(t.includes("what do you remember")||t.includes("show what you remember")||t.includes("my memories")){
-  return memories.length?"I have saved "+memories.length+" memories. Use VIEW MEMORIES to see them.":"My memory is currently empty, Boss. Teach me by saying: remember that followed by a fact.";
- }
- for(const item of memories){const fact=normalise(item.fact);const words=tokens(t).filter(w=>w.length>3);if(words.some(w=>fact.includes(w)))return "I found something in my saved memory: "+item.fact}
- return null;
+
+function renderFacts() {
+  $("factList").innerHTML = "";
+  facts.forEach((fact,index) => {
+    const div = document.createElement("div");
+    div.className = "library-item";
+    const name = document.createElement("b");
+    name.textContent = fact[0];
+    const remove = document.createElement("button");
+    remove.textContent = "DELETE";
+    remove.style.float = "right";
+    remove.onclick = () => {
+      facts.splice(index,1);
+      saveFacts();
+      renderFacts();
+    };
+    const desc = document.createElement("div");
+    desc.textContent = fact[1];
+    div.append(name,remove,desc);
+    $("factList").appendChild(div);
+  });
 }
-function reason(text){
- const t=normalise(text);
- if(t.includes("what should we build next"))return "I suggest choosing a project with a clear real-world purpose. Define the problem, list the components, build a small prototype and test it.";
- if(t.includes("how can i make you smarter"))return "We can improve my knowledge database, speech corrections, topic matching, memory and reasoning rules. A future neural network would require a separate training project.";
- if(t.includes("difference between weather and climate"))return "Weather describes short-term atmospheric conditions. Climate describes patterns of weather over many years.";
- if(t.includes("difference between esp32 and raspberry pi"))return "An ESP32 is a microcontroller designed for embedded tasks. A Raspberry Pi is a small computer that can run an operating system and applications.";
- if(t.includes("difference between memory and learning"))return "Memory stores information for later retrieval. Machine learning adjusts a model based on training data. Saving a fact is not the same as training a neural network.";
- if(t.includes("how do i start a project"))return "Start by identifying the problem. Define success, list requirements, choose components, create a prototype, test it and document the results.";
- if(t.includes("tell me more")||t.includes("explain more")||t==="more"||t==="continue"){
-  const found=knowledge.find(k=>k.topic===lastTopic);
-  return found?"Let's explore "+found.topic+" further. "+found.answers[0]+" We can next examine its components, how it works and how to test it.":"Of course, Boss. Which part would you like me to explain in more detail?";
- }
- if(t.includes("challenge me")||t.includes("ask me a question"))return "Here is your challenge, Boss: If you had an ESP32, a temperature sensor and a display, how would you design a device that helps people understand local weather?";
- if(t.includes("what do you think about me"))return "From our conversations, you seem curious about technology, engineering and building your own systems. Keep learning and testing your ideas, Boss.";
- if(t.includes("can you hear me"))return "I can receive your voice when browser microphone recognition is working. You can also type messages into the conversation centre.";
- if(t.includes("what time"))return "The current time shown by this computer is "+new Date().toLocaleTimeString()+".";
- if(t.includes("what date")||t.includes("todays date")||t==="date")return "Today's date according to this computer is "+new Date().toLocaleDateString("en-ZA",{weekday:"long",year:"numeric",month:"long",day:"numeric"})+".";
- return null;
+
+const BRIDGE_URL = "http://127.0.0.1:8765/health";
+let lastFaultKey = "";
+
+async function checkSatellite() {
+  $("missionMessage").textContent = "Requesting verified hardware information...";
+  try {
+    const response = await fetch(BRIDGE_URL,{cache:"no-store"});
+    if (!response.ok) throw new Error("Bridge returned " + response.status);
+    const data = await response.json();
+    updateSatellite(data);
+  } catch(error) {
+    $("deviceStatus").textContent = "NOT REACHABLE";
+    $("deviceStatus").className = "warning";
+    $("missionMessage").textContent = "No connection to the local PC bridge. This does not prove the ESP32 itself has failed.";
+    $("headerStatus").textContent = "BRIDGE OFFLINE";
+  }
 }
-function findAnswer(original){
- const corrected=correctSpeech(original),text=normalise(corrected);
- if(!text)return "I did not receive a clear question, Boss.";
- if(/\b(hello|hi|hey|good morning|good afternoon|good evening)\b/.test(text))return random(personality.greeting);
- if(["you are the best","youre the best","amazing","great job","well done","you are smart"].some(x=>text.includes(x)))return random(personality.compliment);
- if(text.includes("i love you")||text.includes("love you qorvex"))return random(personality.love);
- if(text.includes("thank you")||text==="thanks")return random(personality.thanks);
- if(text.includes("how are you")||text==="how are u")return "My systems are operating normally, Boss. I am ready to assist you.";
- if(text==="bye"||text.includes("goodbye"))return random(personality.goodbye);
- if(text.includes("fun fact")||text.includes("tell me something interesting"))return random(personality.fun);
- if(text.startsWith("remember ")||text.startsWith("learn that")||text.startsWith("save this fact"))return teachQorvex(corrected);
- if(text.includes("forget all memories")||text.includes("delete all memories"))return "To clear my saved memories, use the CLEAR MEMORIES button in Memory Management.";
- const m=recallMemory(corrected);if(m)return m;
- const r=reason(corrected);if(r)return r;
- const match=findBestKnowledge(corrected);
- if(match){lastTopic=match.item.topic;return random(match.item.answers)}
- for(const item of taughtFacts)for(const key of item.keys)if(text.includes(normalise(key)))return item.answer;
- return "I do not have enough information to answer that confidently yet, Boss. Teach me using 'remember that...' or ask about one of my knowledge topics. My knowledge can be expanded.";
+
+function updateSatellite(data) {
+  $("deviceStatus").textContent = data.deviceOnline === true ? "CONNECTED" : "OFFLINE";
+  $("deviceStatus").className = data.deviceOnline === true ? "good" : "warning";
+  $("wifiStatus").textContent = data.wifiConnected === true ? "CONNECTED" : data.wifiConnected === false ? "DISCONNECTED" : "UNKNOWN";
+  $("sensorStatus").textContent = data.sensorOK === true ? "WORKING" : data.sensorOK === false ? "FAULT REPORTED" : "UNKNOWN";
+  $("temperature").textContent = Number.isFinite(data.temperature) ? data.temperature.toFixed(1) + " °C" : "-- °C";
+  $("humidity").textContent = Number.isFinite(data.humidity) ? data.humidity.toFixed(1) + " %" : "-- %";
+  $("lastUpdate").textContent = data.lastReading || "Unknown";
+
+  const faults = [];
+  if (data.deviceOnline === false) faults.push("ESP32 offline");
+  if (data.wifiConnected === false) faults.push("Wi-Fi disconnected");
+  if (data.sensorOK === false) faults.push("DHT22 fault reported");
+
+  if (faults.length) {
+    activateFault(faults.join(", "));
+  } else if (data.deviceOnline === true && data.sensorOK === true && data.wifiConnected === true) {
+    clearFault();
+    $("missionMessage").textContent = "Latest reported hardware information looks normal.";
+    $("headerStatus").textContent = "MONITORING";
+  } else {
+    $("missionMessage").textContent = "Some hardware information is unknown. More diagnostic data is needed.";
+  }
 }
-function setExpression(state,message){orb.className="orb";if(state!=="normal")orb.classList.add(state);thinking.textContent=message}
-function addMessage(text,sender){const div=document.createElement("div");div.className="message "+sender;div.textContent=(sender==="user"?"YOU: ":"QORVEX: ")+text;chat.appendChild(div);chat.scrollTop=chat.scrollHeight}
-function updateStats(){$("knowledgeCount").textContent=knowledge.length;$("memoryCount").textContent=memories.length;$("conversationCount").textContent=sessionMessages;$("learnedCount").textContent=taughtFacts.length}
-function speak(text){
- if(!("speechSynthesis"in window)){$("speechStatus").textContent="Unavailable";return}
- window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(text);utterance.lang="en-ZA";utterance.rate=.94;utterance.pitch=.95;
- utterance.onstart=()=>setExpression("speaking","QORVEX IS SPEAKING");
- utterance.onend=()=>{if(handsFree){setExpression("listening","HANDS-FREE: LISTENING");startVoice()}else setExpression("normal","READY FOR YOUR NEXT COMMAND")};
- utterance.onerror=()=>{if(handsFree){setExpression("listening","HANDS-FREE: LISTENING");startVoice()}else setExpression("normal","READY")};
- window.speechSynthesis.speak(utterance);
+
+function activateFault(reason) {
+  const key = reason;
+  satelliteFault = true;
+  document.body.classList.add("fault");
+  $("personality").textContent = "Serious";
+  $("coreState").textContent = "FAULT RESPONSE MODE";
+  $("headerStatus").textContent = "FAULT REPORTED";
+  $("missionMessage").textContent = "WARNING: " + reason;
+  $("missionMessage").className = "small warning";
+
+  if (key !== lastFaultKey) {
+    lastFaultKey = key;
+    const message = "Boss, mission control has detected a reported problem: " + reason + ". I am checking the available information. I will not claim it is fixed until recovery is verified.";
+    addMessage("QORVEX ALERT",message);
+    speak(message);
+  }
 }
-function stopSpeaking(){
- if("speechSynthesis"in window)window.speechSynthesis.cancel();
- if(recognition&&listening)recognition.stop();
- handsFree=false;$("handsFreeButton").textContent="HANDS-FREE: OFF";$("voiceButton").classList.remove("active");setExpression("normal","SYSTEM READY");voiceStatus.textContent="Voice system ready.";
+
+function clearFault() {
+  if (satelliteFault) {
+    satelliteFault = false;
+    document.body.classList.remove("fault");
+    $("personality").textContent = "Friendly";
+    $("coreState").textContent = "SYSTEM RESTORED";
+    const message = "Boss, the latest hardware report shows the monitored systems have recovered. Mission control is back to normal.";
+    addMessage("QORVEX RECOVERY",message);
+    speak(message);
+  }
+  lastFaultKey = "";
 }
-function sendMessage(){
- const message=input.value.trim();if(!message)return;
- if(recognition&&listening){try{recognition.stop()}catch(e){}}
- addMessage(message,"user");conversation.push({role:"user",text:message});sessionMessages++;input.value="";setExpression("thinking","UNDERSTANDING YOUR MESSAGE...");updateStats();
- setTimeout(()=>{
-  const answer=findAnswer(message);addMessage(answer,"bot");conversation.push({role:"assistant",text:answer});sessionMessages++;updateStats();
-  savedConversations.push({question:message,answer,date:new Date().toISOString()});savedConversations=savedConversations.slice(-100);saveData();speak(answer);
- },250);
+
+setInterval(checkSatellite,10000);
+
+function saveReminders() {
+  localStorage.setItem("qorvexReminders",JSON.stringify(reminders));
+  renderReminders();
 }
-const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
-$("recognitionStatus").textContent=SpeechRecognition?"Supported by browser":"Not supported by browser";
-function startVoice(){
- if(!SpeechRecognition){voiceStatus.textContent="Voice recognition is unavailable. Try a supported browser such as Chrome.";return}
- if(listening)return;
- recognition=new SpeechRecognition();recognition.lang="en-ZA";recognition.continuous=false;recognition.interimResults=false;recognition.maxAlternatives=3;
- recognition.onstart=()=>{listening=true;$("voiceButton").classList.add("active");voiceStatus.textContent="Listening... Speak clearly.";setExpression("listening","LISTENING TO BOSS...")};
- recognition.onresult=event=>{input.value=correctSpeech(event.results[0][0].transcript);voiceStatus.textContent="Heard: "+event.results[0][0].transcript;sendMessage()};
- recognition.onerror=event=>{listening=false;$("voiceButton").classList.remove("active");voiceStatus.textContent="Microphone message: "+event.error;if(handsFree&&event.error!=="not-allowed"&&event.error!=="service-not-allowed")setTimeout(()=>{if(handsFree)startVoice()},1000)};
- recognition.onend=()=>{listening=false;$("voiceButton").classList.remove("active");if(handsFree&&!window.speechSynthesis.speaking)setTimeout(()=>{if(handsFree)startVoice()},500)};
- try{recognition.start()}catch(e){voiceStatus.textContent="Could not start microphone. Try again."}
+
+function addReminder() {
+  const text = $("reminderText").value.trim();
+  const time = $("reminderTime").value;
+  if (!text || !time) {
+    alert("Enter a reminder and a time.");
+    return;
+  }
+  reminders.push({text,time,done:false});
+  $("reminderText").value = "";
+  saveReminders();
 }
-function toggleHandsFree(){
- handsFree=!handsFree;
- if(handsFree){$("handsFreeButton").textContent="HANDS-FREE: ON";voiceStatus.textContent="Hands-free enabled. QORVEX will listen again after speaking.";startVoice()}
- else{$("handsFreeButton").textContent="HANDS-FREE: OFF";if(recognition&&listening)recognition.stop();stopSpeaking()}
+
+function renderReminders() {
+  $("reminderList").innerHTML = "";
+  if (!reminders.length) {
+    $("reminderList").textContent = "No reminders set.";
+    return;
+  }
+  reminders.forEach((item,index) => {
+    const div = document.createElement("div");
+    div.className = "library-item";
+    div.textContent = new Date(item.time).toLocaleString() + " — " + item.text;
+    const remove = document.createElement("button");
+    remove.textContent = "DELETE";
+    remove.onclick = () => {
+      reminders.splice(index,1);
+      saveReminders();
+    };
+    div.appendChild(remove);
+    $("reminderList").appendChild(div);
+  });
 }
-function renderLibrary(filter=""){
- const area=$("library");area.innerHTML="";const search=normalise(filter);
- const items=knowledge.filter(item=>!search||normalise(item.topic+" "+item.category+" "+item.keys.join(" ")).includes(search));
- items.forEach(item=>{const div=document.createElement("div");div.className="library-item";const title=document.createElement("strong");title.textContent=item.topic;const category=document.createElement("span");category.className="tag";category.textContent=item.category;const desc=document.createElement("div");desc.className="small";desc.textContent=item.answers[0];div.append(title,category,desc);area.appendChild(div)});
- if(!items.length)area.textContent="No matching knowledge topics.";
+
+setInterval(() => {
+  const now = Date.now();
+  reminders.forEach(item => {
+    if (!item.done && new Date(item.time).getTime() <= now) {
+      item.done = true;
+      answer("Boss, reminder: " + item.text);
+      saveReminders();
+    }
+  });
+},15000);
+
+renderReminders();
+
+function focusChat() {
+  $("question").focus();
+  $("chatPanel").scrollIntoView({behavior:"smooth",block:"center"});
 }
-function showMemories(){
- const area=$("memoryDisplay");area.innerHTML="";
- if(!memories.length){area.textContent="No saved memories yet.";return}
- memories.forEach((m,i)=>{const div=document.createElement("div");div.className="library-item";div.textContent=(i+1)+". "+m.fact;area.appendChild(div)});
-}
-function clearMemories(){
- if(!confirm("Are you sure you want to clear all saved memories?"))return;
- memories=[];saveData();updateStats();$("memoryDisplay").textContent="All saved memories have been cleared.";addMessage("All saved memories have been cleared from this browser.","bot");
-}
-$("sendButton").addEventListener("click",sendMessage);
-$("voiceButton").addEventListener("click",startVoice);
-$("handsFreeButton").addEventListener("click",toggleHandsFree);
-$("stopButton").addEventListener("click",stopSpeaking);
-$("clearMemoryButton").addEventListener("click",clearMemories);
-$("showMemoryButton").addEventListener("click",showMemories);
-input.addEventListener("keydown",event=>{if(event.key==="Enter")sendMessage()});
-$("librarySearch").addEventListener("input",event=>renderLibrary(event.target.value));
-$("speechStatus").textContent=("speechSynthesis"in window)?"Available":"Unavailable";
-renderLibrary();updateStats();setExpression("normal","INDEPENDENT SYSTEM ONLINE");
+
+$("coreMessage").textContent = "Welcome, Boss. QORVEX 7.0 is ready. Let's build something extraordinary.";
 </script>
 </body>
 </html>
