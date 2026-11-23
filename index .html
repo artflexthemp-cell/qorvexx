@@ -3,1093 +3,1092 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QORVEX 7.0 | Compassion Space Technologies</title>
+<title>QORVEX 7.0 | Control Centre</title>
+
 <style>
-:root {
-  --bg:#050b16;
-  --panel:#0b1728;
-  --panel2:#0e2035;
-  --cyan:#00e5ff;
-  --blue:#168cff;
-  --text:#eaf8ff;
-  --muted:#8ba8bd;
-  --green:#42f5a1;
-  --red:#ff5368;
-  --yellow:#ffd166;
+:root{
+--bg:#050b16;--panel:#0c1728;--line:#1c3854;
+--cyan:#32d9ff;--blue:#3985ff;--green:#38e49b;
+--red:#ff526b;--yellow:#ffd166;--text:#e9f5ff;
+--muted:#8ca6bf;
 }
-* {box-sizing:border-box}
-body {
-  margin:0;
-  background:radial-gradient(circle at 50% 0%,#102b49 0%,#050b16 48%,#02050b 100%);
-  color:var(--text);
-  font-family:Arial,Helvetica,sans-serif;
-  min-height:100vh;
+*{box-sizing:border-box}
+body{
+margin:0;background:radial-gradient(ellipse at top,#10233b,#050b16 65%);
+color:var(--text);font-family:Arial,Helvetica,sans-serif
 }
-header {
-  padding:18px 22px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  border-bottom:1px solid #17405a;
-  background:#06101deF;
-  position:sticky;
-  top:0;
-  z-index:5;
+header{
+padding:20px 5%;display:flex;justify-content:space-between;
+align-items:center;gap:15px;flex-wrap:wrap;
+border-bottom:1px solid var(--line);background:#07111fe8
 }
-.brand {display:flex;align-items:center;gap:12px}
-.brand-mark {
-  width:42px;height:42px;border:2px solid var(--cyan);
-  border-radius:50%;display:grid;place-items:center;
-  color:var(--cyan);font-weight:bold;
-  box-shadow:0 0 18px #00e5ff66;
+.brand{font-size:25px;font-weight:900;letter-spacing:3px;color:var(--cyan)}
+.brand small{display:block;font-size:10px;letter-spacing:3px;color:var(--muted);margin-top:5px}
+.header-right{color:var(--muted);font-size:13px;text-align:right}
+main{max-width:1450px;margin:auto;padding:22px}
+.section-title{font-size:17px;letter-spacing:1px;margin:0 0 14px;color:var(--cyan)}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.panel{
+background:linear-gradient(145deg,#102039,#091525);
+border:1px solid var(--line);border-radius:15px;padding:18px;
+box-shadow:0 8px 30px #0005;min-width:0
 }
-.brand h1 {font-size:19px;margin:0;letter-spacing:3px}
-.brand small {display:block;color:var(--muted);font-size:10px;margin-top:4px}
-.header-status {font-size:12px;color:var(--green)}
-main {max-width:1500px;margin:auto;padding:18px}
-.top-grid {
-  display:grid;
-  grid-template-columns:1fr 1.25fr 1fr;
-  gap:15px;
+.span-12{grid-column:span 12}
+.span-8{grid-column:span 8}
+.span-7{grid-column:span 7}
+.span-6{grid-column:span 6}
+.span-5{grid-column:span 5}
+.span-4{grid-column:span 4}
+.status-row{
+display:flex;justify-content:space-between;gap:12px;
+padding:11px 0;border-bottom:1px solid #1a3047;font-size:13px
 }
-.panel {
-  background:linear-gradient(145deg,#0d1e32,#07111f);
-  border:1px solid #16405b;
-  border-radius:15px;
-  padding:17px;
-  box-shadow:0 8px 30px #0005;
-  min-width:0;
+.status-row:last-child{border-bottom:0}
+.status{font-weight:bold;color:var(--yellow)}
+.status.online{color:var(--green)}
+.status.offline{color:var(--red)}
+.status.unknown{color:var(--yellow)}
+button{
+background:linear-gradient(120deg,#087ca9,#2257b7);
+border:1px solid #319ac9;color:white;padding:10px 14px;
+border-radius:8px;cursor:pointer;font-weight:bold;margin:4px 3px 4px 0
 }
-.panel h2 {
-  font-size:13px;letter-spacing:2px;
-  color:var(--cyan);margin:0 0 15px;
+button:hover{filter:brightness(1.2)}
+button.secondary{background:#172b43;border-color:#294663}
+button.danger{background:#672536;border-color:#a83b50}
+button.success{background:#12583f;border-color:#20865f}
+input,textarea{
+width:100%;background:#071321;border:1px solid #294560;
+border-radius:8px;padding:11px;color:var(--text);
+margin:6px 0 12px;outline:none
 }
-.muted {color:var(--muted);font-size:12px}
-.core-panel {text-align:center;min-height:340px}
-.core {
-  width:145px;height:145px;border-radius:50%;
-  margin:18px auto;
-  display:grid;place-items:center;
-  border:2px solid var(--cyan);
-  background:radial-gradient(circle,#1c7ba7 0%,#0a2b48 45%,#06101e 72%);
-  box-shadow:0 0 22px #00d9ff88,inset 0 0 25px #00d9ff55;
-  animation:pulse 3s infinite ease-in-out;
-  position:relative;
+input:focus,textarea:focus{border-color:var(--cyan)}
+label{font-size:12px;color:var(--muted)}
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
+.metric{background:#071525;border:1px solid #1c3a54;border-radius:12px;padding:15px}
+.metric small{color:var(--muted);font-size:11px}
+.metric strong{display:block;font-size:32px;margin-top:8px;color:var(--cyan)}
+.metric span{font-size:12px;color:var(--muted)}
+.earth-area{
+display:flex;align-items:center;justify-content:center;
+min-height:245px;gap:24px;flex-wrap:wrap
 }
-.core:before,.core:after {
-  content:"";position:absolute;border:1px solid #00dfff88;
-  border-radius:50%;inset:-13px;animation:spin 12s linear infinite;
+.earth{
+width:175px;height:175px;border-radius:50%;
+background:
+radial-gradient(circle at 35% 30%,#8df4ff 0,#1789c8 12%,transparent 35%),
+radial-gradient(ellipse at 60% 40%,#49c783 0 12%,transparent 13%),
+radial-gradient(ellipse at 35% 65%,#43bd80 0 10%,transparent 11%),
+radial-gradient(circle at 35% 35%,#207bc0,#061b47 70%);
+box-shadow:inset -22px -10px 35px #000b,0 0 35px #168ddc88;
+animation:spin 18s linear infinite;position:relative
 }
-.core:after {inset:-23px;border-style:dashed;animation:spin 20s linear infinite reverse}
-.core span {font-size:43px;color:#b8faff;text-shadow:0 0 20px var(--cyan)}
-@keyframes pulse {
-  0%,100% {transform:scale(1);box-shadow:0 0 18px #00d9ff66}
-  50% {transform:scale(1.045);box-shadow:0 0 35px #00d9ffaa}
+.earth:after{
+content:"";position:absolute;inset:-8px;border:1px solid #39caff55;
+border-radius:50%;box-shadow:0 0 20px #1bbcff55
 }
-@keyframes spin {to{transform:rotate(360deg)}}
-.core-state {color:var(--cyan);font-size:12px;letter-spacing:2px}
-.stat {
-  display:flex;justify-content:space-between;gap:10px;
-  padding:10px 0;border-bottom:1px solid #183247;
-  font-size:13px;
+@keyframes spin{to{transform:rotate(360deg)}}
+.earth-info{max-width:270px;text-align:center}
+.earth-info h2{color:var(--cyan);font-size:19px}
+.muted{color:var(--muted);font-size:12px;line-height:1.6}
+.big-state{font-size:20px;font-weight:bold;margin:12px 0}
+.chatbox{
+height:260px;overflow-y:auto;background:#06111e;
+border:1px solid var(--line);border-radius:10px;padding:12px
 }
-.stat strong {color:var(--cyan);text-align:right}
-.status-dot {
-  display:inline-block;width:8px;height:8px;
-  background:var(--yellow);border-radius:50%;margin-right:6px;
+.message{
+padding:10px 12px;border-radius:10px;margin:7px 0;
+max-width:90%;font-size:13px;line-height:1.5;white-space:pre-wrap
 }
-.status-dot.good {background:var(--green)}
-.status-dot.bad {background:var(--red)}
-button {
-  border:1px solid #087eaa;
-  color:var(--text);background:#0b2942;
-  border-radius:8px;padding:10px 13px;
-  cursor:pointer;font-weight:bold;font-size:11px;
-  letter-spacing:.5px;transition:.2s;
+.message.user{background:#123d61;margin-left:auto}
+.message.bot{background:#13243a;border:1px solid #24415e}
+.reminder{
+padding:11px;background:#0a1a2b;border:1px solid #203c57;
+border-radius:9px;margin:8px 0;font-size:13px
 }
-button:hover {background:#10466a;box-shadow:0 0 13px #00dfff55}
-button.primary {background:#087da5;border-color:var(--cyan)}
-button.danger {border-color:var(--red);background:#421c2a}
-button.success {border-color:var(--green);background:#103c32}
-button:disabled {opacity:.45;cursor:not-allowed}
-.controls {display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
-.lower-grid {
-  display:grid;grid-template-columns:1.2fr .8fr;
-  gap:15px;margin-top:15px;
+.alert{
+display:none;position:fixed;z-index:10;right:18px;bottom:18px;
+width:min(370px,calc(100% - 36px));padding:18px;
+background:#351421;border:1px solid var(--red);border-radius:13px;
+box-shadow:0 0 30px #ff315544
 }
-.chat-log {
-  height:290px;overflow-y:auto;
-  background:#030a13;border:1px solid #17354c;
-  border-radius:10px;padding:12px;
+.alert.show{display:block}
+.alert h3{color:#ff9aa9;margin-top:0}
+.fault-panel{
+display:none;padding:12px;margin-top:12px;
+border:1px solid var(--red);border-radius:9px;
+background:#351421;color:#ffb3bd;font-size:13px
 }
-.message {
-  padding:10px 12px;margin:8px 0;border-radius:10px;
-  max-width:92%;font-size:13px;line-height:1.5;
-  white-space:pre-wrap;overflow-wrap:anywhere;
-}
-.message.q {background:#0c2b42;border-left:3px solid var(--cyan)}
-.message.user {background:#172334;border-left:3px solid var(--blue);margin-left:auto}
-.chat-entry {display:flex;gap:8px;margin-top:10px}
-.chat-entry input {flex:1;min-width:0}
-input,textarea,select {
-  background:#030b15;color:var(--text);
-  border:1px solid #24506b;border-radius:8px;
-  padding:11px;font:inherit;width:100%;
-}
-textarea {min-height:75px;resize:vertical}
-.section {margin-top:15px}
-.two-col {display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.reminder-list {max-height:170px;overflow:auto}
-.reminder-item {
-  padding:9px;margin:7px 0;background:#071522;
-  border:1px solid #1a3b50;border-radius:8px;font-size:12px;
-}
-.reminder-alert {
-  display:none;border:2px solid var(--yellow);
-  background:#392c0b;padding:15px;border-radius:12px;
-  margin-top:12px;box-shadow:0 0 20px #ffd16644;
-}
-.reminder-alert.active {display:block;animation:pulse 1.8s infinite}
-.reminder-alert h3 {color:var(--yellow);margin:0 0 8px}
-.knowledge-grid {
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:8px;
-}
-.knowledge-item {
-  background:#081827;border:1px solid #17405a;
-  border-radius:8px;padding:10px;font-size:12px;
-}
-.footer {text-align:center;color:#59778d;font-size:10px;padding:22px}
-.tag {color:var(--cyan)}
-@media(max-width:900px) {
-  .top-grid {grid-template-columns:1fr}
-  .lower-grid {grid-template-columns:1fr}
-}
-@media(max-width:520px) {
-  header {padding:12px}
-  .brand h1 {font-size:15px}
-  main {padding:10px}
-  .two-col {grid-template-columns:1fr}
-  .knowledge-grid {grid-template-columns:1fr 1fr}
+.fault-panel.show{display:block}
+hr{border:0;border-top:1px solid var(--line);margin:15px 0}
+footer{text-align:center;padding:25px;color:#6d879f;font-size:11px}
+@media(max-width:850px){
+.span-8,.span-7,.span-6,.span-5,.span-4{grid-column:span 12}
+main{padding:13px}.earth-area{gap:12px}
 }
 </style>
 </head>
+
 <body>
 <header>
-  <div class="brand">
-    <div class="brand-mark">Q</div>
-    <div>
-      <h1>QORVEX 7.0</h1>
-      <small>COMPASSION SPACE TECHNOLOGIES</small>
-    </div>
-  </div>
-  <div class="header-status" id="systemStatus">SYSTEM INITIALISING</div>
+<div class="brand">
+QORVEX <span style="color:white">7.0</span>
+<small>INTELLIGENT CONTROL CENTRE</small>
+</div>
+<div class="header-right">
+<div id="clock">--:--:--</div>
+<div id="todayDate">Loading date...</div>
+<div>COMPASSION SPACE TECHNOLOGIES</div>
+</div>
 </header>
 
 <main>
-  <div class="top-grid">
-    <section class="panel">
-      <h2>MISSION CONTROL</h2>
-      <div class="stat"><span>Python Bridge</span><strong id="bridgeStatus">Checking...</strong></div>
-      <div class="stat"><span>ESP32</span><strong id="espStatus">Unknown</strong></div>
-      <div class="stat"><span>Wi-Fi</span><strong id="wifiStatus">Unknown</strong></div>
-      <div class="stat"><span>DHT22 Sensor</span><strong id="sensorStatus">Unknown</strong></div>
-      <div class="stat"><span>Temperature</span><strong id="temperature">-- °C</strong></div>
-      <div class="stat"><span>Humidity</span><strong id="humidity">-- %</strong></div>
-      <div class="stat"><span>Last Update</span><strong id="lastUpdate">Waiting</strong></div>
-      <p class="muted" id="missionMessage">
-        Waiting for the local Python bridge. A missing bridge does not prove the ESP32 is offline.
-      </p>
-      <button onclick="checkBridge()">CHECK CONNECTION</button>
-    </section>
+<div class="grid">
 
-    <section class="panel core-panel">
-      <h2>QORVEX ARTIFICIAL INTELLIGENCE</h2>
-      <div class="core" id="aiCore"><span id="coreFace">◉</span></div>
-      <div class="core-state" id="coreState">STANDING BY</div>
-      <p class="muted" id="coreMessage">Ready to assist, Boss.</p>
-      <div class="controls">
-        <button class="primary" id="handsFreeButton" onclick="toggleHandsFree()">HANDS-FREE: OFF</button>
-        <button onclick="startListening()">🎤 TALK</button>
-        <button onclick="stopListening()">STOP MIC</button>
-        <button onclick="stopSpeaking()">STOP VOICE</button>
-      </div>
-      <p class="muted" id="micStatus">Microphone not started</p>
-    </section>
+<section class="panel span-8">
+<h2 class="section-title">MISSION CONTROL</h2>
+<div class="earth-area">
+<div class="earth" aria-label="Animated Earth"></div>
+<div class="earth-info">
+<h2>COMPASSION.SAT 1</h2>
+<div class="muted">EARTH-BASED ENVIRONMENTAL MONITORING</div>
+<div id="mainState" class="big-state status unknown">CONNECTING...</div>
+<div class="muted">QORVEX is monitoring the ESP32 connection and sensor readings.</div>
+</div>
+</div>
+<hr>
+<label for="espIP">ESP32 LOCAL IP ADDRESS</label>
+<input id="espIP" value="192.168.8.115" placeholder="Example: 192.168.1.100">
+<button onclick="saveIP()">SAVE IP</button>
+<button onclick="checkESP32()">CHECK NOW</button>
+<div class="muted" id="connectionMessage">Waiting for first connection check...</div>
+<div class="metrics">
+<div class="metric">
+<small>TEMPERATURE</small>
+<strong id="temperature">-- °C</strong>
+<span>Live sensor reading</span>
+</div>
+<div class="metric">
+<small>HUMIDITY</small>
+<strong id="humidity">-- %</strong>
+<span>Relative humidity</span>
+</div>
+</div>
+<div id="faultPanel" class="fault-panel"></div>
+</section>
 
-    <section class="panel">
-      <h2>PERSONAL ASSISTANT</h2>
-      <div class="stat"><span>Local Time</span><strong id="clock">--:--:--</strong></div>
-      <div class="stat"><span>Today's Date</span><strong id="todayDate">--</strong></div>
-      <div class="stat"><span>Saved Reminders</span><strong id="reminderCount">0</strong></div>
-      <p class="muted">Create a reminder and QORVEX will speak when it is due.</p>
-      <div class="section">
-        <label class="muted">Reminder message</label>
-        <input id="reminderMessage" placeholder="Example: Wake up, Boss!">
-      </div>
-      <div class="two-col section">
-        <div>
-          <label class="muted">Date</label>
-          <input type="date" id="reminderDate">
-        </div>
-        <div>
-          <label class="muted">Time</label>
-          <input type="time" id="reminderTime">
-        </div>
-      </div>
-      <div class="controls">
-        <button class="primary" onclick="addReminder()">ADD REMINDER</button>
-      </div>
-      <div class="section reminder-list" id="reminderList"></div>
+<section class="panel span-4">
+<h2 class="section-title">SYSTEM DIAGNOSTICS</h2>
+<div class="status-row"><span>ESP32 CONNECTION</span><span id="espStatus" class="status unknown">VERIFYING</span></div>
+<div class="status-row"><span>WI-FI CONNECTION</span><span id="wifiStatus" class="status unknown">UNKNOWN</span></div>
+<div class="status-row"><span>DHT22 SENSOR</span><span id="sensorStatus" class="status unknown">UNKNOWN</span></div>
+<div class="status-row"><span>DATA RECEIVING</span><span id="dataStatus" class="status unknown">WAITING</span></div>
+<div class="status-row"><span>FAILED CHECKS</span><span id="failCount">0</span></div>
+<div class="status-row"><span>LAST UPDATE</span><span id="lastUpdate">Never</span></div>
+<hr>
+<div class="muted">QORVEX can diagnose communication and sensor-data problems and retry checks. Physical repairs require human attention.</div>
+</section>
 
-      <div class="reminder-alert" id="reminderAlert">
-        <h3>REMINDER ALERT</h3>
-        <div id="alertText"></div>
-        <div class="controls">
-          <button class="success" onclick="snoozeReminder()">SNOOZE 5 MINUTES</button>
-          <button class="danger" onclick="dismissReminder()">DISMISS</button>
-        </div>
-      </div>
-    </section>
-  </div>
+<section class="panel span-6">
+<h2 class="section-title">AI CORE — VOICE ASSISTANT</h2>
+<div class="big-state" id="voiceStatus">VOICE SYSTEM READY</div>
+<div class="muted">Talk to QORVEX using your computer microphone. Browser speech recognition support may vary.</div>
+<hr>
+<button onclick="toggleHandsFree()" id="handsBtn">ENABLE HANDS-FREE</button>
+<button onclick="startListening()">TALK</button>
+<button class="secondary" onclick="stopListening()">STOP MIC</button>
+<button class="danger" onclick="stopVoice()">STOP VOICE</button>
+<div class="status-row"><span>MICROPHONE</span><span id="micStatus" class="status unknown">STANDBY</span></div>
+<div class="status-row"><span>SPEECH OUTPUT</span><span id="speechStatus" class="status unknown">READY</span></div>
+</section>
 
-  <div class="lower-grid">
-    <section class="panel">
-      <h2>QORVEX COMMUNICATION</h2>
-      <div class="chat-log" id="chatLog"></div>
-      <div class="chat-entry">
-        <input id="chatInput" placeholder="Talk to QORVEX, Boss..."
-          onkeydown="if(event.key==='Enter')sendMessage()">
-        <button class="primary" onclick="sendMessage()">SEND</button>
-      </div>
-      <div class="controls" style="justify-content:flex-start">
-        <button onclick="quickAsk('How are you?')">HOW ARE YOU?</button>
-        <button onclick="quickAsk('Tell me a joke')">TELL A JOKE</button>
-        <button onclick="quickAsk('What is an ESP32?')">ESP32</button>
-        <button onclick="quickAsk('Let us build something')">BUILD SOMETHING</button>
-      </div>
-    </section>
+<section class="panel span-6">
+<h2 class="section-title">PERSONAL ASSISTANT — REMINDERS</h2>
+<label for="reminderMessage">REMINDER MESSAGE</label>
+<input id="reminderMessage" placeholder="What should I remind you about?">
+<label for="reminderDate">DATE</label>
+<input id="reminderDate" type="date">
+<label for="reminderTime">TIME</label>
+<input id="reminderTime" type="time">
+<button onclick="addReminder()">ADD REMINDER</button>
+<div class="status-row"><span>SAVED REMINDERS</span><span id="reminderCount">0</span></div>
+<div id="reminderList"></div>
+</section>
 
-    <section class="panel">
-      <h2>TEACH QORVEX</h2>
-      <p class="muted">Teach QORVEX a question and answer. It will save the information in this browser.</p>
-      <label class="muted">Question</label>
-      <input id="teachQuestion" placeholder="What should QORVEX learn?">
-      <div class="section">
-        <label class="muted">Answer</label>
-        <textarea id="teachAnswer" placeholder="Enter the answer QORVEX should remember..."></textarea>
-      </div>
-      <div class="controls">
-        <button class="primary" onclick="teachQorvex()">SAVE KNOWLEDGE</button>
-        <button onclick="showMemories()">VIEW SAVED KNOWLEDGE</button>
-      </div>
-      <div id="memoryOutput" class="muted section"></div>
-    </section>
-  </div>
+<section class="panel span-7">
+<h2 class="section-title">QORVEX COMMUNICATION</h2>
+<div class="chatbox" id="chatBox">
+<div class="message bot">QORVEX 7.0 ready. I can monitor Compassion.Sat 1 and assist with your project.</div>
+</div>
+<label for="chatInput">MESSAGE QORVEX</label>
+<input id="chatInput" placeholder="Ask QORVEX something..." onkeydown="if(event.key==='Enter')sendMessage()">
+<button onclick="sendMessage()">SEND MESSAGE</button>
+<button class="secondary" onclick="quickAsk('What is the temperature on the satellite?')">TEMPERATURE</button>
+<button class="secondary" onclick="quickAsk('Check the satellite connection')">CHECK CONNECTION</button>
+<button class="secondary" onclick="quickAsk('Explain the DHT22 sensor')">DHT22 HELP</button>
+</section>
 
-  <section class="panel section">
-    <h2>ENGINEERING KNOWLEDGE SYSTEM</h2>
-    <div class="knowledge-grid" id="knowledgeGrid"></div>
-  </section>
+<section class="panel span-5">
+<h2 class="section-title">TEACH QORVEX — LEARNING LIBRARY</h2>
+<div class="muted">Teach QORVEX a question and answer. The information is saved in this browser on this computer.</div>
+<label for="teachQuestion">QUESTION</label>
+<input id="teachQuestion" placeholder="What should QORVEX learn?">
+<label for="teachAnswer">ANSWER</label>
+<textarea id="teachAnswer" rows="4" placeholder="Enter the answer QORVEX should remember..."></textarea>
+<button onclick="teachQorvex()">SAVE KNOWLEDGE</button>
+<button class="secondary" onclick="showMemories()">VIEW LEARNED ITEMS</button>
+<div id="memoryList" class="muted"></div>
+</section>
 
-  <div class="footer">
-    QORVEX 7.0 · COMPASSION SPACE TECHNOLOGIES · LOCAL ASSISTANT PROTOTYPE
-  </div>
+<section class="panel span-12">
+<h2 class="section-title">ENGINEERING KNOWLEDGE BASE</h2>
+<div class="grid">
+<div class="span-4"><b>ESP32</b><p class="muted">A microcontroller with Wi-Fi and Bluetooth capabilities. It can read sensors and send data to other systems.</p></div>
+<div class="span-4"><b>DHT22 / AM2302</b><p class="muted">A digital sensor that measures temperature and relative humidity.</p></div>
+<div class="span-4"><b>ST7789 TFT</b><p class="muted">A colour display controller often used with small SPI screens.</p></div>
+<div class="span-4"><b>Wi-Fi</b><p class="muted">A wireless networking technology that allows devices to communicate over a local network.</p></div>
+<div class="span-4"><b>Microcontroller</b><p class="muted">A small computer on a chip used to control electronic systems.</p></div>
+<div class="span-4"><b>Cloud monitoring</b><p class="muted">A method of sending device readings through the internet to a remote dashboard.</p></div>
+</div>
+</section>
+
+</div>
 </main>
 
+<div class="alert" id="reminderAlert">
+<h3>QORVEX REMINDER</h3>
+<p id="alertText"></p>
+<button class="success" onclick="dismissReminder()">DISMISS</button>
+<button class="secondary" onclick="snoozeReminder()">SNOOZE 5 MIN</button>
+</div>
+
+<footer>QORVEX 7.0 · COMPASSION SPACE TECHNOLOGIES · PRIVATE CONTROL CENTRE</footer>
+
 <script>
-/* =========================================
-   QORVEX 7.0 — CORE SYSTEM
-========================================= */
+"use strict";
 
-const $ = id => document.getElementById(id);
+/* STORAGE */
+function loadArray(key){
+ try{
+  const value=JSON.parse(localStorage.getItem(key)||"[]");
+  return Array.isArray(value)?value:[];
+ }catch(e){return [];}
+}
 
-let handsFree = false;
-let recognition = null;
-let isListening = false;
-let isSpeaking = false;
-let currentReminder = null;
-let reminderRepeatTimer = null;
-let bridgeConnected = false;
-let faultMode = false;
-let reminders = loadStoredArray("qorvex_reminders");
-let memories = loadStoredArray("qorvex_memories");
-let conversationCount = 0;
-let clockTimer = null;
-let reminderTimer = null;
-let bridgeTimer = null;
+let memories=loadArray("qorvex_memories");
+let reminders=loadArray("qorvex_reminders");
+let espIP=localStorage.getItem("qorvex_esp_ip")||"192.168.8.115";
+let failureCount=0;
+let espOnline=false;
+let sensorAvailable=false;
+let latestTemperature=null;
+let latestHumidity=null;
+let handsFree=false;
+let recognition=null;
+let isListening=false;
+let currentReminder=null;
+let reminderRepeatTimer=null;
+let lastFault="";
+let lastFaultAnnouncement=0;
+let checking=false;
 
-function loadStoredArray(key) {
-  try {
-    const value = JSON.parse(localStorage.getItem(key) || "[]");
-    return Array.isArray(value) ? value : [];
-  } catch (error) {
-    console.warn("Could not read saved data for", key, error);
-    return [];
+document.getElementById("espIP").value=espIP;
+
+/* CLOCK */
+function updateClock(){
+ const now=new Date();
+ document.getElementById("clock").textContent=
+  now.toLocaleTimeString("en-ZA");
+ document.getElementById("todayDate").textContent=
+  now.toLocaleDateString("en-ZA",{
+   weekday:"long",year:"numeric",month:"long",day:"numeric"
+  });
+}
+updateClock();
+setInterval(updateClock,1000);
+
+/* CHAT DISPLAY */
+function addChat(type,text){
+ const box=document.getElementById("chatBox");
+ const div=document.createElement("div");
+ div.className="message "+type;
+ div.textContent=text;
+ box.appendChild(div);
+ box.scrollTop=box.scrollHeight;
+}
+
+/* STATUS DISPLAY */
+function setStatus(id,text,state){
+ const el=document.getElementById(id);
+ if(!el)return;
+ el.textContent=text;
+ el.className="status "+state;
+}
+
+/* FAULT ANNOUNCEMENTS */
+function announceFault(message,key){
+ const now=Date.now();
+ const changed=key!==lastFault;
+ const cooldown=now-lastFaultAnnouncement>60000;
+
+ if(changed||cooldown){
+  lastFault=key;
+  lastFaultAnnouncement=now;
+  speakText("System alert. "+message);
+  addChat("bot","SYSTEM ALERT: "+message);
+ }
+}
+
+function clearFault(){
+ lastFault="";
+ document.getElementById("faultPanel").classList.remove("show");
+ document.getElementById("faultPanel").textContent="";
+}
+
+function showFault(message,key){
+ const panel=document.getElementById("faultPanel");
+ panel.textContent="SYSTEM ALERT: "+message;
+ panel.classList.add("show");
+ announceFault(message,key);
+}
+
+/* SAVE ESP32 ADDRESS */
+function cleanAddress(value){
+ return String(value||"").trim()
+  .replace(/^https?:\/\//i,"").replace(/\/+$/,"");
+}
+
+function saveIP(){
+ const value=cleanAddress(document.getElementById("espIP").value);
+
+ if(!value){
+  alert("Please enter the ESP32 IP address.");
+  return;
+ }
+ if(!/^[a-zA-Z0-9.-]+(:[0-9]+)?$/.test(value)){
+  alert("Please enter a valid ESP32 IP address.");
+  return;
+ }
+
+ espIP=value;
+ localStorage.setItem("qorvex_esp_ip",espIP);
+ document.getElementById("espIP").value=espIP;
+ document.getElementById("connectionMessage").textContent=
+  "Saved ESP32 address: "+espIP;
+ addChat("bot","ESP32 address saved. I will connect directly to "+espIP+".");
+ checkESP32();
+}
+
+/* OFFLINE STATE */
+function showOffline(message){
+ espOnline=false;
+ sensorAvailable=false;
+ latestTemperature=null;
+ latestHumidity=null;
+
+ document.getElementById("temperature").textContent="-- °C";
+ document.getElementById("humidity").textContent="-- %";
+
+ setStatus("espStatus","UNREACHABLE","offline");
+ setStatus("wifiStatus","NOT VERIFIED","unknown");
+ setStatus("sensorStatus","NOT VERIFIED","unknown");
+ setStatus("dataStatus","NO DATA","offline");
+
+ const main=document.getElementById("mainState");
+ main.textContent="SATELLITE UNREACHABLE";
+ main.className="big-state status offline";
+
+ document.getElementById("connectionMessage").textContent=message;
+
+ showFault(
+  "QORVEX cannot reach the ESP32. Check its power, Wi-Fi connection, IP address and network.",
+  "esp32_offline"
+ );
+}
+
+/* SENSOR FAULT */
+function showSensorFault(){
+ sensorAvailable=false;
+ latestTemperature=null;
+ latestHumidity=null;
+
+ document.getElementById("temperature").textContent="-- °C";
+ document.getElementById("humidity").textContent="-- %";
+
+ setStatus("sensorStatus","DATA UNAVAILABLE","offline");
+ setStatus("dataStatus","NO SENSOR DATA","unknown");
+
+ document.getElementById("mainState").textContent="SENSOR FAULT";
+ document.getElementById("mainState").className="big-state status offline";
+
+ document.getElementById("connectionMessage").textContent=
+  "ESP32 is responding, but valid temperature and humidity readings are unavailable.";
+
+ showFault(
+  "The ESP32 is responding, but DHT22 readings are unavailable. Check the sensor, wiring and sensor connection.",
+  "dht22_fault"
+ );
+}
+
+/* DIRECT ESP32 CONNECTION */
+async function checkESP32(){
+ if(checking)return;
+ checking=true;
+
+ const address=cleanAddress(document.getElementById("espIP").value);
+
+ if(!address){
+  document.getElementById("connectionMessage").textContent=
+   "Enter the ESP32 IP address first.";
+  checking=false;
+  return;
+ }
+
+ espIP=address;
+ setStatus("dataStatus","CHECKING","unknown");
+ document.getElementById("connectionMessage").textContent=
+  "Checking ESP32 at "+address+" ...";
+
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),4000);
+
+ try{
+  const response=await fetch(
+   "http://"+address+"/data?time="+Date.now(),
+   {
+    method:"GET",
+    cache:"no-store",
+    mode:"cors",
+    signal:controller.signal
+   }
+  );
+
+  clearTimeout(timeout);
+
+  if(!response.ok)throw new Error("HTTP "+response.status);
+
+  const data=await response.json();
+
+  if(!data||typeof data!=="object"){
+   throw new Error("Invalid JSON response");
   }
-}
 
-function saveReminders() {
-  try {
-    localStorage.setItem("qorvex_reminders", JSON.stringify(reminders));
-  } catch (error) {
-    console.warn("Could not save reminders:", error);
-  }
-  renderReminders();
-}
+  failureCount=0;
+  document.getElementById("failCount").textContent="0";
 
-function saveMemories() {
-  try {
-    localStorage.setItem("qorvex_memories", JSON.stringify(memories));
-  } catch (error) {
-    console.warn("Could not save memories:", error);
-  }
-}
+  espOnline=true;
+  setStatus("espStatus","ONLINE","online");
 
-function setMood(mood, message) {
-  const faces = {
-    idle:"◉", happy:"☺", thinking:"◎",
-    serious:"◈", speaking:"◉", curious:"?", listening:"◉"
-  };
-  $("coreFace").textContent = faces[mood] || "◉";
-  $("coreState").textContent = mood.toUpperCase();
-  $("coreMessage").textContent = message || "Ready to assist, Boss.";
-}
-
-function addChat(text, who) {
-  const div = document.createElement("div");
-  div.className = "message " + (who === "user" ? "user" : "q");
-  div.textContent = (who === "user" ? "BOSS: " : "QORVEX: ") + text;
-  $("chatLog").appendChild(div);
-  $("chatLog").scrollTop = $("chatLog").scrollHeight;
-}
-
-function stopSpeaking() {
-  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-  isSpeaking = false;
-  setMood("idle", "Voice stopped.");
-}
-
-function speak(text, options = {}) {
-  if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") {
-    addChat("Speech output is not supported by this browser.", "q");
-    return;
+  if(data.online===false){
+   sensorAvailable=false;
+   setStatus("wifiStatus","DISCONNECTED","offline");
+   showSensorFault();
+   document.getElementById("connectionMessage").textContent=
+    "ESP32 responded but reports its Wi-Fi is disconnected.";
+   checking=false;
+   return;
   }
 
-  const shouldRestart = options.restart !== false && handsFree;
-  if (recognition && isListening) {
-    try { recognition.stop(); } catch(e) {}
+  setStatus("wifiStatus","CONNECTED","online");
+
+  const t=Number(data.temperature);
+  const h=Number(data.humidity);
+
+  const validT=data.temperature!==null&&
+   data.temperature!==undefined&&Number.isFinite(t)&&t>=-40&&t<=80;
+
+  const validH=data.humidity!==null&&
+   data.humidity!==undefined&&Number.isFinite(h)&&h>=0&&h<=100;
+
+  document.getElementById("lastUpdate").textContent=
+   new Date().toLocaleTimeString("en-ZA");
+
+  if(validT&&validH){
+   latestTemperature=t;
+   latestHumidity=h;
+   sensorAvailable=true;
+
+   document.getElementById("temperature").textContent=t.toFixed(1)+" °C";
+   document.getElementById("humidity").textContent=h.toFixed(1)+" %";
+
+   setStatus("sensorStatus","READING","online");
+   setStatus("dataStatus","RECEIVING","online");
+
+   document.getElementById("mainState").textContent="SATELLITE ONLINE";
+   document.getElementById("mainState").className="big-state status online";
+   document.getElementById("connectionMessage").textContent=
+    "Connected. Live temperature and humidity readings received.";
+
+   clearFault();
+  }else{
+   showSensorFault();
   }
 
-  window.speechSynthesis.cancel();
-  isSpeaking = true;
-  setMood("speaking", "Speaking to Boss...");
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "en-ZA";
-  utterance.rate = 0.94;
-  utterance.pitch = 0.82;
-  utterance.volume = 1;
+ }catch(error){
+  clearTimeout(timeout);
+  failureCount++;
+  document.getElementById("failCount").textContent=String(failureCount);
 
-  const voices = window.speechSynthesis.getVoices();
-  const selected = voices.find(v => v.lang.toLowerCase() === "en-za")
-    || voices.find(v => v.lang.toLowerCase().startsWith("en"));
-  if (selected) utterance.voice = selected;
+  setStatus("dataStatus","REQUEST FAILED","offline");
 
-  utterance.onend = () => {
-    isSpeaking = false;
-    setMood("idle", "Ready for your next instruction, Boss.");
-    if (shouldRestart && handsFree) scheduleListening(900);
-  };
+  if(failureCount>=3){
+   showOffline(
+    "No response after three checks. ESP32 may be disconnected, unreachable or blocked by browser security."
+   );
+  }else{
+   setStatus("espStatus","RETRYING","unknown");
+   setStatus("wifiStatus","UNKNOWN","unknown");
+   setStatus("sensorStatus","UNKNOWN","unknown");
 
-  utterance.onerror = () => {
-    isSpeaking = false;
-    setMood("idle", "Voice output encountered a problem.");
-    if (shouldRestart && handsFree) scheduleListening(1200);
-  };
+   document.getElementById("mainState").textContent="RETRYING CONNECTION";
+   document.getElementById("mainState").className="big-state status unknown";
 
-  window.speechSynthesis.speak(utterance);
-}
-
-function reply(text) {
-  addChat(text, "q");
-  speak(text);
-}
-
-function scheduleListening(delay) {
-  if (!handsFree || isSpeaking) return;
-  window.setTimeout(() => {
-    if (handsFree && !isSpeaking) startListening();
-  }, delay);
-}
-
-/* =========================================
-   MICROPHONE AND HANDS-FREE SYSTEM
-========================================= */
-
-function setupRecognition() {
-  const SpeechAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechAPI) {
-    $("micStatus").textContent = "Speech recognition is unavailable in this browser.";
-    return false;
+   document.getElementById("connectionMessage").textContent=
+    "Connection attempt "+failureCount+" failed. Retrying: "+error.message;
   }
-
-  if (recognition) return true;
-
-  recognition = new SpeechAPI();
-  recognition.lang = "en-ZA";
-  recognition.continuous = false;
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
-
-  recognition.onstart = () => {
-    isListening = true;
-    $("micStatus").textContent = "Listening for Boss...";
-    setMood("listening", "I'm listening, Boss.");
-  };
-
-  recognition.onresult = event => {
-    const transcript = event.results[event.results.length - 1][0].transcript.trim();
-    if (transcript) {
-      $("chatInput").value = transcript;
-      sendMessage();
-    }
-  };
-
-  recognition.onerror = event => {
-    isListening = false;
-    $("micStatus").textContent = "Microphone: " + event.error;
-    if (handsFree && !isSpeaking && event.error !== "not-allowed") {
-      scheduleListening(1800);
-    }
-  };
-
-  recognition.onend = () => {
-    isListening = false;
-    if (handsFree && !isSpeaking) scheduleListening(1000);
-    else if (!handsFree) $("micStatus").textContent = "Microphone stopped";
-  };
-
-  return true;
+ }finally{
+  checking=false;
+ }
 }
 
-function startListening() {
-  if (isSpeaking) {
-    $("micStatus").textContent = "Waiting for QORVEX to finish speaking...";
-    return;
-  }
-  if (!setupRecognition()) return;
-  if (isListening) return;
+/* AUTOMATIC CONNECTION CHECK */
+setInterval(checkESP32,5000);
 
-  try {
-    recognition.start();
-  } catch(e) {
-    $("micStatus").textContent = "Microphone is starting. Please wait.";
-  }
+/* CURRENT SYSTEM STATUS */
+function currentStatusAnswer(){
+ if(!espOnline){
+  return "I cannot currently reach Compassion.Sat 1. The ESP32 has not responded. Check its power, Wi-Fi, IP address and network.";
+ }
+
+ if(!sensorAvailable){
+  return "The ESP32 is online, but temperature and humidity readings are unavailable. The DHT22 sensor or its connection needs attention.";
+ }
+
+ return "Compassion.Sat 1 is online. Current temperature is "+
+  latestTemperature.toFixed(1)+" degrees Celsius. Current humidity is "+
+  latestHumidity.toFixed(1)+" percent.";
 }
 
-function stopListening() {
-  handsFree = false;
-  $("handsFreeButton").textContent = "HANDS-FREE: OFF";
-  if (recognition && isListening) {
-    try { recognition.stop(); } catch(e) {}
-  }
-  isListening = false;
-  $("micStatus").textContent = "Microphone stopped";
-  setMood("idle", "Microphone stopped.");
-}
-
-function toggleHandsFree() {
-  handsFree = !handsFree;
-  $("handsFreeButton").textContent = "HANDS-FREE: " + (handsFree ? "ON" : "OFF");
-
-  if (handsFree) {
-    if (!setupRecognition()) {
-      handsFree = false;
-      $("handsFreeButton").textContent = "HANDS-FREE: OFF";
-      return;
-    }
-    $("micStatus").textContent = "Hands-free enabled";
-    speak("Hands-free mode activated, Boss. I'm listening.", {restart:true});
-  } else {
-    if (recognition && isListening) {
-      try { recognition.stop(); } catch(e) {}
-    }
-    isListening = false;
-    $("micStatus").textContent = "Hands-free disabled";
-  }
-}
-
-/* =========================================
-   CONVERSATION LIBRARY
-========================================= */
-
-const responseGroups = {
-  greetings: [
-    "Hello, Boss. QORVEX systems are ready. How can I assist you?",
-    "Welcome back, Boss. How can I assist you?",
-    "Good to hear from you, Boss. What are we working on today?",
-    "Hello there, Boss. Your digital assistant is ready.",
-    "At your service, Boss. What is today's mission?"
-  ],
-  howareyou: [
-    "I'm operating normally, Boss. My circuits are calm and my systems are ready.",
-    "Doing well, Boss. No coffee required for this artificial intelligence.",
-    "All systems are behaving themselves today. How are you doing?",
-    "I'm excellent, Boss. Although I still haven't figured out how to take a holiday.",
-    "Running smoothly. More importantly, how has your day been?"
-  ],
-  day: [
-    "How has your day been so far, Boss?",
-    "Have you made progress on any of your projects today?",
-    "I hope today has treated you well. What is on your mind?",
-    "What was the most interesting thing that happened today?",
-    "Are we having a productive day, Boss?"
-  ],
-  jokes: [
-    "Why did the computer go to the doctor? Because it had a virus!",
-    "Why was the robot so relaxed? It had excellent self-control.",
-    "I tried to tell an electronics joke, Boss, but nobody found it current.",
-    "Why did the circuit break up with the battery? There was no chemistry.",
-    "Boss, I would tell you a UDP joke, but you might not get it."
-  ],
-  encouragement: [
-    "Every successful invention starts with someone willing to solve a problem, Boss.",
-    "Take it one step at a time. Engineering is about testing, learning and improving.",
-    "A difficult problem is an opportunity to learn something new.",
-    "You do not need to know everything today. Keep learning and keep building.",
-    "Let's turn that idea into a working project, Boss."
-  ],
-  thanks: [
-    "You're welcome, Boss. That's what I'm here for.",
-    "Always ready to assist with the next task, Boss.",
-    "No problem. What shall we work on next?",
-    "Acknowledged, Boss. Happy to help."
-  ],
-  goodbye: [
-    "Goodbye for now, Boss. QORVEX will be here when you return.",
-    "Take care, Boss. Remember to save your work.",
-    "Until next time. Keep building great things."
-  ],
-  goodnight: [
-    "Goodnight, Boss. Rest well and recharge for tomorrow.",
-    "Sleep well, Boss. Even great engineers need rest.",
-    "Goodnight. QORVEX is standing by."
-  ]
+/* KNOWLEDGE */
+const knowledge={
+ "what is esp32":"The ESP32 is a microcontroller with built-in Wi-Fi and Bluetooth. It can read sensors and send data.",
+ "what is dht22":"The DHT22, also called AM2302, measures temperature and relative humidity.",
+ "what is am2302":"AM2302 is another name used for the DHT22 temperature and humidity sensor.",
+ "what is st7789":"The ST7789 is a display controller commonly used for small colour TFT screens.",
+ "what is tft":"TFT means thin-film transistor. It is a type of display technology.",
+ "what is wifi":"Wi-Fi connects devices wirelessly to a local network and potentially to the internet.",
+ "what is a microcontroller":"A microcontroller is a small computer chip that controls electronic devices.",
+ "what is a cloud server":"A cloud server is a computer service accessed over the internet. It can receive and store readings for remote monitoring.",
+ "what is compassion sat 1":"Compassion.Sat 1 is an Earth-based environmental monitoring project designed to measure temperature and humidity.",
+ "what is qorvex":"QORVEX is the private computer assistant and monitoring dashboard for the Compassion.Sat 1 project."
 };
 
-const knowledge = {
-  "esp32":"The ESP32 is a microcontroller with built-in Wi-Fi and Bluetooth on many models. It can read sensors, control displays and communicate with other devices.",
-  "dht22":"The DHT22 is a digital sensor used to measure temperature and relative humidity. It needs correct wiring and a suitable library.",
-  "am2302":"AM2302 is another name commonly used for the DHT22 temperature and humidity sensor.",
-  "st7789":"The ST7789 is a display controller used by many colour TFT screens. Your planned display is 240 by 240 pixels and uses SPI communication.",
-  "tft":"A TFT display is a type of screen that can show text, graphics and colours.",
-  "arduino":"Arduino is an electronics platform and software ecosystem used to program microcontrollers.",
-  "arduino uno":"The Arduino Uno is a popular beginner microcontroller board.",
-  "raspberry pi":"A Raspberry Pi is a small computer. Unlike a typical microcontroller, it can run a full operating system.",
-  "resistor":"A resistor limits or controls electrical current and can be used to divide voltage.",
-  "capacitor":"A capacitor stores electrical energy temporarily and is often used for filtering and stabilising power.",
-  "led":"An LED is a light-emitting diode. It produces light when current flows in the correct direction.",
-  "diode":"A diode mainly allows current to flow in one direction.",
-  "transistor":"A transistor can act as an electronic switch or amplifier.",
-  "breadboard":"A breadboard lets you build temporary electronic circuits without soldering.",
-  "sensor":"A sensor detects a physical condition such as temperature, light, movement or humidity.",
-  "servo":"A servo motor moves to a controlled position using a control signal.",
-  "motor":"An electric motor converts electrical energy into movement.",
-  "battery":"A battery stores chemical energy and supplies electrical power.",
-  "voltage":"Voltage is the electrical potential difference between two points.",
-  "current":"Electric current is the rate of flow of electric charge.",
-  "resistance":"Electrical resistance describes how strongly a material opposes current flow.",
-  "ohm":"The ohm is the unit of electrical resistance.",
-  "wifi":"Wi-Fi is a wireless networking technology that connects devices to a local network.",
-  "python":"Python is a programming language often used for automation, data processing and building local computer applications.",
-  "html":"HTML structures the content of a webpage.",
-  "css":"CSS controls how a webpage looks, including colours, spacing and layout.",
-  "javascript":"JavaScript adds behaviour and interactivity to webpages.",
-  "robotics":"Robotics combines mechanical design, electronics, sensors and programming to create machines that perform tasks.",
-  "weather":"Weather monitoring can use temperature and humidity sensors to collect local environmental measurements.",
-  "compassion.sat 1":"Compassion.Sat 1 is an Earth-based environmental monitoring project by Compassion Space Technologies. Its first version focuses on real temperature and humidity readings using an ESP32 and DHT22 sensor.",
-  "compassion space technologies":"Compassion Space Technologies is the project identity behind Compassion.Sat 1, an Earth-based environmental monitoring project.",
-  "qorvex":"I am QORVEX 7.0, your locally programmed digital assistant for conversation, reminders, engineering learning and Compassion Mission Control.",
-  "ohms law":"Ohm's law describes the relationship between voltage, current and resistance: voltage equals current multiplied by resistance.",
-  "circuit":"An electrical circuit is a connected path through which electric current can flow.",
-  "microcontroller":"A microcontroller is a small computer on a chip that can read inputs and control outputs."
-};
-
-function randomFrom(list) {
-  return list[Math.floor(Math.random() * list.length)];
+function normalise(text){
+ return String(text||"").toLowerCase()
+  .replace(/[^\w\s.]/g," ").replace(/\s+/g," ").trim();
 }
 
-function normalise(text) {
-  return text.toLowerCase().replace(/[^\w\s.]/g," ").replace(/\s+/g," ").trim();
+/* VOICE COMMANDS AND ANSWERS */
+function generateResponse(message){
+ const q=normalise(message);
+
+ /* REMINDER COMMANDS */
+ if(q.includes("dismiss")&&q.includes("reminder")||
+    q==="dismiss it"||q==="dismiss"){
+  return dismissReminder(true);
+ }
+
+ if(q.includes("snooze")&&
+    (q.includes("reminder")||q.includes("it"))||
+    q==="snooze"){
+  return snoozeReminder(true);
+ }
+
+ if(q.includes("what reminders")||q.includes("list reminders")||
+    q.includes("my reminders")||q.includes("active reminders")){
+  return describeReminders();
+ }
+
+ /* DEVICE STATUS */
+ if(q.includes("temperature")||q.includes("humidity")||
+    q.includes("weather on the satellite")||
+    q.includes("satellite reading")){
+  return currentStatusAnswer();
+ }
+
+ if(q.includes("connection")||q.includes("satellite online")||
+    q.includes("satellite offline")||q.includes("check satellite")||
+    q.includes("is the esp32 online")){
+  return currentStatusAnswer();
+ }
+
+ if(q.includes("check now")||q==="check esp32"){
+  checkESP32();
+  return "I am checking the ESP32 connection now. Ask me for its status in a moment.";
+ }
+
+ if(q.includes("stop talking")){
+  stopVoice();
+  return "Voice output stopped.";
+ }
+
+ if(q.includes("hello")||q==="hi"||q.includes("good morning")){
+  return "Hello. QORVEX 7.0 is ready. How can I assist you?";
+ }
+
+ if(q.includes("how are you")){
+  return "My monitoring systems are ready. I am waiting for your next instruction.";
+ }
+
+ if(q.includes("thank")){
+  return "You're welcome. I am here to help with your project.";
+ }
+
+ if(q.includes("who created you")){
+  return "I am QORVEX 7.0, created as part of the Compassion technology projects.";
+ }
+
+ if(q.includes("what time")){
+  return "The current time is "+new Date().toLocaleTimeString("en-ZA")+".";
+ }
+
+ if(q.includes("what date")||q.includes("what day")){
+  return "Today is "+new Date().toLocaleDateString("en-ZA",{
+   weekday:"long",year:"numeric",month:"long",day:"numeric"
+  })+".";
+ }
+
+ for(const key of Object.keys(knowledge)){
+  if(q===key||q.includes(key))return knowledge[key];
+ }
+
+ const taught=memories.find(m=>normalise(m.question)===q);
+ if(taught)return taught.answer;
+
+ const partial=memories.find(m=>
+  q.includes(normalise(m.question))||
+  normalise(m.question).includes(q)
+ );
+ if(partial)return partial.answer;
+
+ if(q.includes("help")){
+  return "I can check the ESP32, report temperature and humidity, explain project components, manage reminders and answer questions you have taught me.";
+ }
+
+ return "I don't have a saved answer for that yet. You can teach me using the Teach QORVEX section.";
 }
 
-function findKnowledge(input) {
-  const q = normalise(input);
+function processMessage(message,speak=true){
+ const reply=generateResponse(message);
+ addChat("user",message);
+ addChat("bot",reply);
+ if(speak)speakText(reply);
+ return reply;
+}
 
-  for (const [key, value] of Object.entries(knowledge)) {
-    if (q === key || q.includes("what is " + key) ||
-        q.includes("tell me about " + key) ||
-        q.includes("explain " + key)) return value;
+function sendMessage(){
+ const input=document.getElementById("chatInput");
+ const message=input.value.trim();
+ if(!message)return;
+ input.value="";
+ processMessage(message,true);
+}
+
+function quickAsk(message){
+ processMessage(message,true);
+}
+
+/* SPEECH OUTPUT */
+function speakText(text){
+ if(!("speechSynthesis" in window)){
+  setStatus("speechStatus","NOT SUPPORTED","offline");
+  return;
+ }
+
+ window.speechSynthesis.cancel();
+
+ const utterance=new SpeechSynthesisUtterance(String(text));
+ utterance.lang="en-ZA";
+ utterance.rate=1;
+
+ utterance.onstart=()=>{
+  setStatus("speechStatus","SPEAKING","online");
+ };
+
+ utterance.onend=()=>{
+  setStatus("speechStatus","READY","unknown");
+ };
+
+ utterance.onerror=()=>{
+  setStatus("speechStatus","ERROR","offline");
+ };
+
+ window.speechSynthesis.speak(utterance);
+}
+
+function stopVoice(){
+ if("speechSynthesis" in window)window.speechSynthesis.cancel();
+ setStatus("speechStatus","STOPPED","unknown");
+}
+
+/* MICROPHONE */
+function setupRecognition(){
+ const SpeechRecognition=
+  window.SpeechRecognition||window.webkitSpeechRecognition;
+
+ if(!SpeechRecognition){
+  document.getElementById("voiceStatus").textContent=
+   "VOICE RECOGNITION NOT SUPPORTED";
+  setStatus("micStatus","NOT SUPPORTED","offline");
+  return false;
+ }
+
+ recognition=new SpeechRecognition();
+ recognition.lang="en-ZA";
+ recognition.continuous=false;
+ recognition.interimResults=false;
+
+ recognition.onstart=()=>{
+  isListening=true;
+  setStatus("micStatus","LISTENING","online");
+  document.getElementById("voiceStatus").textContent="LISTENING...";
+ };
+
+ recognition.onresult=(event)=>{
+  const spoken=event.results[event.results.length-1][0].transcript;
+  processMessage(spoken,true);
+ };
+
+ recognition.onerror=(event)=>{
+  setStatus("micStatus","ERROR","offline");
+  document.getElementById("voiceStatus").textContent=
+   "MICROPHONE: "+event.error;
+ };
+
+ recognition.onend=()=>{
+  isListening=false;
+  setStatus("micStatus","STANDBY","unknown");
+
+  if(handsFree){
+   setTimeout(()=>{
+    if(handsFree)startListening();
+   },1200);
+  }else{
+   document.getElementById("voiceStatus").textContent=
+    "VOICE SYSTEM READY";
   }
+ };
 
-  for (const item of memories) {
-    const question = normalise(item.question);
-    if (q === question || (question && q.includes(question))) return item.answer;
-  }
-  return null;
+ return true;
 }
 
-function generateResponse(input) {
-  const q = normalise(input);
-  conversationCount++;
+function startListening(){
+ if(isListening)return;
 
-  if (!q) return "I didn't hear anything, Boss. Could you repeat that?";
+ if(!recognition&&!setupRecognition()){
+  alert("Speech recognition is not supported in this browser. Try Chrome.");
+  return;
+ }
 
-  if (/^(hi|hello|hey|good morning|good afternoon|good evening)\b/.test(q))
-    return randomFrom(responseGroups.greetings);
-
-  if (q.includes("how are you") || q.includes("how are things"))
-    return randomFrom(responseGroups.howareyou);
-
-  if (q.includes("how was your day") || q.includes("how is your day") ||
-      q.includes("how has your day")) return randomFrom(responseGroups.day);
-
-  if (q.includes("tell me a joke") || q.includes("make me laugh") ||
-      q.includes("say something funny")) return randomFrom(responseGroups.jokes);
-
-  if (q.includes("thank you") || q === "thanks") return randomFrom(responseGroups.thanks);
-
-  if (q.includes("good night") || q.includes("goodnight")) return randomFrom(responseGroups.goodnight);
-
-  if (q.includes("goodbye") || q === "bye") return randomFrom(responseGroups.goodbye);
-
-  if (q.includes("motivate me") || q.includes("encourage me") ||
-      q.includes("i feel stuck")) return randomFrom(responseGroups.encouragement);
-
-  if (q.includes("what time") || q === "time") return "The current time is " + new Date().toLocaleTimeString() + ", Boss.";
-
-  if (q.includes("what date") || q.includes("today's date"))
-    return "Today is " + new Date().toLocaleDateString("en-ZA") + ", Boss.";
-
-  if (q.includes("who are you")) return "I am QORVEX 7.0, a locally programmed assistant created for Compassion Space Technologies.";
-
-  if (q.includes("what can you do")) return "I can chat using my programmed response library, speak aloud, listen in supported browsers, manage reminders, save facts you teach me and display Compassion Mission Control data when the Python bridge is running.";
-
-  if (q.includes("let us build") || q.includes("let's build") || q.includes("build something"))
-    return "Excellent, Boss. What are we building? We can explore electronics, robotics, programming, sensors or a new Compassion Space Technologies project.";
-
-  if (q.includes("what is compassion.sat") || q.includes("tell me about compassion.sat"))
-    return knowledge["compassion.sat 1"];
-
-  if (q.includes("are you online") || q.includes("is the satellite online"))
-    return bridgeConnected
-      ? "The Python bridge is connected. I will use its latest report to check the ESP32 status."
-      : "The Python bridge is not connected, Boss. I cannot confirm whether the ESP32 is online or offline yet.";
-
-  const known = findKnowledge(q);
-  if (known) return known;
-
-  if (q.includes("help")) return "Certainly, Boss. Tell me what you need help with. I can assist with engineering concepts, your projects, reminders and the information in my knowledge library.";
-
-  const fallbacks = [
-    "I'm not certain about that yet, Boss. You can teach me the correct answer using Teach QORVEX.",
-    "I don't have a programmed answer for that question yet. Let's add it to my knowledge library.",
-    "That's an interesting question. I need more information before I can give you a reliable answer.",
-    "I understand the topic, but I don't have enough programmed knowledge to answer confidently."
-  ];
-  return randomFrom(fallbacks);
+ try{
+  recognition.start();
+ }catch(error){}
 }
 
-function sendMessage() {
-  const input = $("chatInput").value.trim();
-  if (!input) return;
-  $("chatInput").value = "";
-  addChat(input, "user");
-  setMood("thinking", "Processing your message, Boss...");
-  const answer = generateResponse(input);
-  window.setTimeout(() => reply(answer), 250);
+function stopListening(){
+ handsFree=false;
+ document.getElementById("handsBtn").textContent="ENABLE HANDS-FREE";
+
+ if(recognition&&isListening)recognition.stop();
+
+ setStatus("micStatus","STANDBY","unknown");
+ document.getElementById("voiceStatus").textContent="VOICE SYSTEM READY";
 }
 
-function quickAsk(text) {
-  $("chatInput").value = text;
-  sendMessage();
+function toggleHandsFree(){
+ handsFree=!handsFree;
+
+ document.getElementById("handsBtn").textContent=
+  handsFree?"DISABLE HANDS-FREE":"ENABLE HANDS-FREE";
+
+ if(handsFree)startListening();
+ else stopListening();
 }
 
-function teachQorvex() {
-  const question = $("teachQuestion").value.trim();
-  const answer = $("teachAnswer").value.trim();
-  if (!question || !answer) {
-    alert("Please enter both a question and an answer.");
-    return;
-  }
+/* TEACH QORVEX */
+function teachQorvex(){
+ const question=document.getElementById("teachQuestion").value.trim();
+ const answer=document.getElementById("teachAnswer").value.trim();
 
-  memories = memories.filter(m => normalise(m.question) !== normalise(question));
-  memories.push({question, answer});
-  saveMemories();
+ if(!question||!answer){
+  alert("Enter both a question and an answer.");
+  return;
+ }
 
-  $("teachQuestion").value = "";
-  $("teachAnswer").value = "";
-  $("memoryOutput").textContent = "Knowledge saved successfully.";
-  reply("Thank you, Boss. I have saved that information in my local knowledge library.");
+ memories.push({question,answer});
+ localStorage.setItem("qorvex_memories",JSON.stringify(memories));
+
+ document.getElementById("teachQuestion").value="";
+ document.getElementById("teachAnswer").value="";
+
+ document.getElementById("memoryList").textContent=
+  "Knowledge saved successfully.";
+
+ addChat("bot","I have learned a new answer and saved it in this browser.");
 }
 
-function showMemories() {
-  if (!memories.length) {
-    $("memoryOutput").textContent = "No extra knowledge has been taught yet.";
-    return;
-  }
-  $("memoryOutput").innerHTML = "";
-  memories.forEach(item => {
-    const div = document.createElement("div");
-    div.className = "reminder-item";
-    const strong = document.createElement("strong");
-    strong.textContent = item.question;
-    const p = document.createElement("p");
-    p.textContent = item.answer;
-    div.append(strong, p);
-    $("memoryOutput").appendChild(div);
-  });
-}
+function showMemories(){
+ const box=document.getElementById("memoryList");
+ box.innerHTML="";
 
-function renderKnowledge() {
-  const topics = [
-    "ESP32","DHT22 / AM2302","ST7789 TFT","Arduino",
-    "Raspberry Pi","Resistors","Capacitors","LEDs",
-    "Diodes","Transistors","Sensors","Motors",
-    "Servos","Batteries","Voltage","Current",
-    "Wi-Fi","Python","HTML","CSS","JavaScript",
-    "Robotics","Weather monitoring","Circuit basics"
-  ];
+ if(!memories.length){
+  box.textContent="No custom knowledge saved yet.";
+  return;
+ }
 
-  $("knowledgeGrid").innerHTML = "";
-  topics.forEach(topic => {
-    const div = document.createElement("div");
-    div.className = "knowledge-item";
-    div.textContent = topic;
-    $("knowledgeGrid").appendChild(div);
-  });
-}
+ memories.forEach((item,index)=>{
+  const div=document.createElement("div");
+  div.className="reminder";
 
-/* =========================================
-   REPEATING REMINDER SYSTEM
-========================================= */
+  const q=document.createElement("b");
+  q.textContent=item.question;
 
-function renderReminders() {
-  $("reminderCount").textContent = reminders.length;
-  $("reminderList").innerHTML = "";
+  const a=document.createElement("p");
+  a.textContent=item.answer;
 
-  if (!reminders.length) {
-    $("reminderList").textContent = "No upcoming reminders.";
-    return;
-  }
+  const del=document.createElement("button");
+  del.className="danger";
+  del.textContent="DELETE";
 
-  reminders.sort((a,b) => new Date(a.due) - new Date(b.due));
-
-  reminders.forEach(reminder => {
-    const div = document.createElement("div");
-    div.className = "reminder-item";
-
-    const message = document.createElement("span");
-    message.textContent = reminder.message + " — " +
-      new Date(reminder.due).toLocaleString();
-
-    const remove = document.createElement("button");
-    remove.textContent = "DELETE";
-    remove.style.marginLeft = "8px";
-    remove.onclick = () => {
-      reminders = reminders.filter(r => r.id !== reminder.id);
-      saveReminders();
-    };
-
-    div.append(message, remove);
-    $("reminderList").appendChild(div);
-  });
-}
-
-function addReminder() {
-  const message = $("reminderMessage").value.trim();
-  const date = $("reminderDate").value;
-  const time = $("reminderTime").value;
-
-  if (!message || !date || !time) {
-    alert("Boss, please enter a message, date and time.");
-    return;
-  }
-
-  const due = new Date(date + "T" + time);
-
-  if (Number.isNaN(due.getTime()) || due <= new Date()) {
-    alert("Please choose a future date and time.");
-    return;
-  }
-
-  reminders.push({
-    id: Date.now() + Math.random(),
-    message,
-    due: due.toISOString()
-  });
-
-  saveReminders();
-
-  $("reminderMessage").value = "";
-  reply("Reminder saved, Boss. I will alert you when it is due.");
-}
-
-function checkReminders() {
-  if (currentReminder) return;
-
-  const now = Date.now();
-  const dueIndex = reminders.findIndex(r => new Date(r.due).getTime() <= now);
-
-  if (dueIndex === -1) return;
-
-  currentReminder = reminders.splice(dueIndex, 1)[0];
-  saveReminders();
-  showReminderAlert();
-}
-
-function showReminderAlert() {
-  if (!currentReminder) return;
-
-  $("reminderAlert").classList.add("active");
-  $("alertText").textContent = currentReminder.message;
-
-  setMood("serious", "A reminder requires your attention, Boss.");
-
-  speak("Boss, your reminder. " + currentReminder.message, {
-    restart:true
-  });
-
-  if (reminderRepeatTimer) clearInterval(reminderRepeatTimer);
-
-  reminderRepeatTimer = setInterval(() => {
-    if (!currentReminder) {
-      clearInterval(reminderRepeatTimer);
-      reminderRepeatTimer = null;
-      return;
-    }
-
-    speak("Reminder, Boss. " + currentReminder.message, {
-      restart:true
-    });
-  }, 60000);
-}
-
-function dismissReminder() {
-  if (!currentReminder) return;
-
-  if (reminderRepeatTimer) {
-    clearInterval(reminderRepeatTimer);
-    reminderRepeatTimer = null;
-  }
-
-  currentReminder = null;
-  $("reminderAlert").classList.remove("active");
-
-  setMood("happy", "Reminder dismissed.");
-  reply("Reminder dismissed, Boss. We can continue.");
-}
-
-function snoozeReminder() {
-  if (!currentReminder) return;
-
-  if (reminderRepeatTimer) {
-    clearInterval(reminderRepeatTimer);
-    reminderRepeatTimer = null;
-  }
-
-  const snoozed = {
-    id: Date.now() + Math.random(),
-    message: currentReminder.message,
-    due: new Date(Date.now() + 5 * 60000).toISOString()
+  del.onclick=()=>{
+   memories.splice(index,1);
+   localStorage.setItem("qorvex_memories",JSON.stringify(memories));
+   showMemories();
   };
 
-  reminders.push(snoozed);
-  currentReminder = null;
-
-  $("reminderAlert").classList.remove("active");
-  saveReminders();
-
-  setMood("idle", "Reminder snoozed for five minutes.");
-  reply("Understood, Boss. I will remind you again in five minutes.");
+  div.append(q,a,del);
+  box.appendChild(div);
+ });
 }
 
-/* =========================================
-   COMPASSION MISSION CONTROL
-========================================= */
-
-const BRIDGE_URL = "http://127.0.0.1:8765/health";
-
-function setStatus(id, text, state) {
-  const el = $(id);
-  el.textContent = text;
-  el.style.color = state === true ? "var(--green)" :
-    state === false ? "var(--red)" : "var(--yellow)";
+/* REMINDER STORAGE */
+function saveReminders(){
+ localStorage.setItem("qorvex_reminders",JSON.stringify(reminders));
 }
 
-async function checkBridge() {
-  $("bridgeStatus").textContent = "Checking...";
-  $("missionMessage").textContent = "Checking the local Python bridge...";
+/* REMINDER DISPLAY */
+function renderReminders(){
+ const list=document.getElementById("reminderList");
+ list.innerHTML="";
 
-  const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), 4000);
+ document.getElementById("reminderCount").textContent=
+  String(reminders.length);
 
-  try {
-    const response = await fetch(BRIDGE_URL, {
-      method:"GET",
-      cache:"no-store",
-      signal:controller.signal
-    });
+ if(!reminders.length){
+  list.textContent="No reminders saved.";
+  return;
+ }
 
-    if (!response.ok) throw new Error("Bridge returned HTTP " + response.status);
+ reminders.forEach(item=>{
+  const div=document.createElement("div");
+  div.className="reminder";
 
-    const data = await response.json();
-    bridgeConnected = true;
+  const msg=document.createElement("b");
+  msg.textContent=item.message;
 
-    setStatus("bridgeStatus", "CONNECTED", true);
+  const time=document.createElement("div");
+  time.className="muted";
+  time.textContent=new Date(item.when).toLocaleString("en-ZA");
 
-    const deviceOnline = data.deviceOnline;
-    const wifiConnected = data.wifiConnected;
-    const sensorOK = data.sensorOK;
+  const del=document.createElement("button");
+  del.className="danger";
+  del.textContent="DELETE";
 
-    if (deviceOnline === true) {
-      setStatus("espStatus", "ONLINE", true);
-    } else if (deviceOnline === false) {
-      setStatus("espStatus", "OFFLINE", false);
-    } else {
-      setStatus("espStatus", "UNKNOWN", null);
-    }
+  del.onclick=()=>{
+   const deletingCurrent=
+    currentReminder&&currentReminder.id===item.id;
 
-    if (wifiConnected === true) {
-      setStatus("wifiStatus", "CONNECTED", true);
-    } else if (wifiConnected === false) {
-      setStatus("wifiStatus", "DISCONNECTED", false);
-    } else {
-      setStatus("wifiStatus", "UNKNOWN", null);
-    }
+   reminders=reminders.filter(r=>r.id!==item.id);
+   saveReminders();
 
-    if (sensorOK === true) {
-      setStatus("sensorStatus", "WORKING", true);
-    } else if (sensorOK === false) {
-      setStatus("sensorStatus", "FAULT", false);
-    } else {
-      setStatus("sensorStatus", "UNKNOWN", null);
-    }
+   if(deletingCurrent){
+    closeReminderAlert();
+   }
 
-    if (typeof data.temperature === "number") {
-      $("temperature").textContent = data.temperature.toFixed(1) + " °C";
-    }
+   renderReminders();
+  };
 
-    if (typeof data.humidity === "number") {
-      $("humidity").textContent = data.humidity.toFixed(1) + " %";
-    }
+  div.append(msg,time,del);
+  list.appendChild(div);
+ });
+}
 
-    $("lastUpdate").textContent = new Date().toLocaleTimeString();
+/* ADD REMINDER */
+function addReminder(){
+ const message=document.getElementById("reminderMessage").value.trim();
+ const date=document.getElementById("reminderDate").value;
+ const time=document.getElementById("reminderTime").value;
 
-    if (deviceOnline === false || wifiConnected === false || sensorOK === false) {
-      faultMode = true;
-      $("systemStatus").textContent = "ATTENTION REQUIRED";
-      $("systemStatus").style.color = "var(--red)";
-      $("missionMessage").textContent =
-        "A fault has been reported. QORVEX is monitoring the reported status. A software report cannot repair a physical fault.";
-      setMood("serious", "Mission Control has detected a reported problem.");
-    } else if (deviceOnline === true && wifiConnected === true && sensorOK === true) {
-      faultMode = false;
-      $("systemStatus").textContent = "ALL REPORTED SYSTEMS NORMAL";
-      $("systemStatus").style.color = "var(--green)";
-      $("missionMessage").textContent =
-        "The bridge reports that the ESP32, Wi-Fi and sensor are working.";
-      setMood("happy", "Mission Control reports normal operation.");
-    } else {
-      $("missionMessage").textContent =
-        "Bridge connected, but one or more hardware statuses are unknown.";
-    }
+ if(!message||!date||!time){
+  alert("Enter a message, date and time.");
+  return;
+ }
 
-  } catch(error) {
-    bridgeConnected = false;
-    faultMode = false;
+ const when=new Date(date+"T"+time).getTime();
 
-    setStatus("bridgeStatus", "NOT CONNECTED", false);
-    setStatus("espStatus", "UNKNOWN", null);
-    setStatus("wifiStatus", "UNKNOWN", null);
-    setStatus("sensorStatus", "UNKNOWN", null);
+ if(!Number.isFinite(when)||when<=Date.now()){
+  alert("Please choose a future date and time.");
+  return;
+ }
 
-    $("temperature").textContent = "-- °C";
-    $("humidity").textContent = "-- %";
-    $("lastUpdate").textContent = "Unavailable";
-    $("systemStatus").textContent = "BRIDGE UNAVAILABLE";
-    $("systemStatus").style.color = "var(--yellow)";
+ reminders.push({
+  id:Date.now()+"_"+Math.random().toString(16).slice(2),
+  message,
+  when,
+  done:false
+ });
 
-    $("missionMessage").textContent =
-      "The Python bridge cannot be reached. QORVEX cannot determine whether the ESP32 is online or offline. Check that the bridge is running.";
-  } finally {
-    window.clearTimeout(timeout);
+ saveReminders();
+
+ document.getElementById("reminderMessage").value="";
+ renderReminders();
+
+ addChat("bot","Your reminder has been saved.");
+}
+
+/* LIST REMINDERS BY VOICE */
+function describeReminders(){
+ if(!reminders.length){
+  return "You do not have any saved reminders.";
+ }
+
+ const descriptions=reminders.map((item,index)=>{
+  const date=new Date(item.when).toLocaleString("en-ZA");
+  return "Reminder "+(index+1)+": "+item.message+
+   ", scheduled for "+date+".";
+ });
+
+ return "You have "+reminders.length+
+  " saved reminders. "+descriptions.join(" ");
+}
+
+/* CHECK DUE REMINDERS */
+function checkReminders(){
+ const now=Date.now();
+
+ if(currentReminder)return;
+
+ const due=reminders
+  .filter(r=>!r.done&&r.when<=now)
+  .sort((a,b)=>a.when-b.when);
+
+ if(due.length){
+  showReminderAlert(due[0]);
+ }
+}
+
+/* SHOW ACTIVE REMINDER */
+function showReminderAlert(item){
+ currentReminder=item;
+
+ document.getElementById("alertText").textContent=item.message;
+ document.getElementById("reminderAlert").classList.add("show");
+
+ speakText(
+  "Reminder. "+item.message+
+  ". You can say dismiss the reminder or snooze the reminder."
+ );
+
+ clearInterval(reminderRepeatTimer);
+
+ reminderRepeatTimer=setInterval(()=>{
+  if(currentReminder){
+   speakText(
+    "Reminder. "+currentReminder.message+
+    ". Say dismiss the reminder or snooze the reminder."
+   );
   }
+ },60000);
 }
 
-/* =========================================
-   CLOCK AND PERSONAL CHECK-IN
-========================================= */
+/* CLOSE REMINDER WITHOUT DELETING ANOTHER */
+function closeReminderAlert(){
+ currentReminder=null;
 
-function updateClock() {
-  const now = new Date();
+ clearInterval(reminderRepeatTimer);
+ reminderRepeatTimer=null;
 
-  $("clock").textContent = now.toLocaleTimeString();
-  $("todayDate").textContent = now.toLocaleDateString("en-ZA");
-
-  if ($("reminderDate") && !$("reminderDate").value) {
-    $("reminderDate").value =
-      now.getFullYear() + "-" +
-      String(now.getMonth()+1).padStart(2,"0") + "-" +
-      String(now.getDate()).padStart(2,"0");
-  }
+ document.getElementById("reminderAlert").classList.remove("show");
 }
 
-/* Ask a friendly check-in once an hour while the page is open. */
-function startHourlyCheckins() {
-  window.setInterval(() => {
-    if (!faultMode && !currentReminder && !isSpeaking) {
-      const checkins = [
-        "Boss, are you still there?",
-        "How are you doing, Boss?",
-        "How is your work progressing?",
-        "Do you need help with anything, Boss?"
-      ];
-      reply(randomFrom(checkins));
-    }
-  }, 60 * 60 * 1000);
+/* DISMISS REMINDER */
+function dismissReminder(fromVoice=false){
+ if(!currentReminder){
+  return "There is no active reminder to dismiss.";
+ }
+
+ const message=currentReminder.message;
+ const id=currentReminder.id;
+
+ reminders=reminders.filter(r=>r.id!==id);
+ saveReminders();
+
+ closeReminderAlert();
+ renderReminders();
+
+ const reply="Dismissed reminder: "+message+".";
+
+ if(fromVoice)addChat("bot",reply);
+
+ return reply;
 }
 
-/* =========================================
-   START QORVEX — SINGLE STARTUP FUNCTION
-========================================= */
+/* SNOOZE REMINDER */
+function snoozeReminder(fromVoice=false){
+ if(!currentReminder){
+  return "There is no active reminder to snooze.";
+ }
 
-function startQorvex() {
-  renderKnowledge();
-  renderReminders();
-  updateClock();
+ const message=currentReminder.message;
+ const id=currentReminder.id;
 
-  if (clockTimer) clearInterval(clockTimer);
-  if (reminderTimer) clearInterval(reminderTimer);
-  if (bridgeTimer) clearInterval(bridgeTimer);
+ const item=reminders.find(r=>r.id===id);
 
-  clockTimer = setInterval(updateClock, 1000);
-  reminderTimer = setInterval(checkReminders, 1000);
-  bridgeTimer = setInterval(checkBridge, 10000);
+ if(!item){
+  closeReminderAlert();
+  return "I could not find that reminder in saved reminders.";
+ }
 
-  addChat("Welcome back, Boss. How can I assist you?", "q");
-  speak("Welcome back, Boss. How can I assist you?", {restart:false});
+ item.when=Date.now()+5*60*1000;
+ item.done=false;
 
-  checkBridge();
-  startHourlyCheckins();
+ saveReminders();
+
+ closeReminderAlert();
+ renderReminders();
+
+ const reply="Reminder snoozed for five minutes: "+message+".";
+
+ if(fromVoice)addChat("bot",reply);
+
+ return reply;
 }
 
-if ("speechSynthesis" in window) {
-  window.speechSynthesis.getVoices();
+/* AUTOMATIC STARTUP */
+function startQorvex(){
+ renderReminders();
+
+ checkESP32();
+
+ setInterval(checkReminders,1000);
+
+ setTimeout(()=>{
+  speakText("QORVEX 7.0 is ready. Mission control initialized.");
+ },1200);
 }
 
-window.addEventListener("load", startQorvex);
+window.addEventListener("load",startQorvex);
+
 </script>
 </body>
 </html>
