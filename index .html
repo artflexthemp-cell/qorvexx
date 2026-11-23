@@ -1472,7 +1472,18 @@ if ("speechSynthesis" in window) {
     if(/\b(start|turn on|activate) (the )?microphone\b/.test(q))return {type:'direct',text:startMic()};
     if(/\bstop speaking\b|\bstop talking\b/.test(q)){window.stopSpeaking();return {type:'silent'};}
     if(/\b(read|list) (my )?(upcoming )?reminders\b/.test(q))return {type:'direct',text:reminders.length?'Your saved reminders are: '+reminders.map((r,i)=>(i+1)+'. '+r.message+', due '+new Date(r.due).toLocaleString()).join('. '):'You have no saved upcoming reminders, Boss.'};
-    if(/\b(dismiss|delete) (that |the )?reminder\b/.test(q)){if(currentReminder){window.dismissReminder();return {type:'silent'};}if(reminders.length===1){reminders.shift();saveReminders();return {type:'direct',text:'The reminder has been dismissed, Boss.'};}if(reminders.length>1)return {type:'direct',text:'There are several upcoming reminders. Please tell me which reminder to dismiss, or use its number from the reminder list.'};return {type:'direct',text:'There is no active reminder to dismiss.'};}
+    if(/\b(dismiss|clear|stop|cancel) (my |this |that |the |current |active )?(reminder|reminder alert)\b/.test(q) || /\b(reminder|reminder alert) (dismiss|clear|stop)\b/.test(q)){
+      if(currentReminder){
+        window.dismissReminder();
+        return {type:'silent'};
+      }
+      return {type:'direct',text:'There is no active reminder alert to dismiss, Boss. If you mean a future reminder, say “delete my upcoming reminder” and tell me which one.'};
+    }
+    if(/\b(delete|remove) (my |the |an )?(upcoming |saved )?reminder\b/.test(q)){
+      if(reminders.length===1){reminders.shift();saveReminders();return {type:'direct',text:'Your upcoming reminder has been deleted, Boss.'};}
+      if(reminders.length>1)return {type:'direct',text:'You have several upcoming reminders. Please say “delete reminder number one” or tell me the reminder name.'};
+      return {type:'direct',text:'You have no upcoming reminders to delete, Boss.'};
+    }
     const snooze=q.match(/\bsnooze (the )?reminder(?: for)?(?: (\d+) minutes?)?\b/);if(snooze){if(currentReminder){const mins=Math.max(1,Math.min(1440,Number(snooze[2]||5)));const r={id:Date.now()+Math.random(),message:currentReminder.message,due:new Date(Date.now()+mins*60000).toISOString()};if(reminderRepeatTimer)clearInterval(reminderRepeatTimer);currentReminder=null;$('reminderAlert').classList.remove('active');reminders.push(r);saveReminders();return {type:'direct',text:'Reminder snoozed for '+mins+' minutes, Boss.'};}return {type:'direct',text:'There is no active reminder to snooze.'};}
     if(/\b(complete|full|give me|read|tell me|what is|how is|is).*(compassion[ .]?sat ?1|sat ?1).*(reading|readings|report|status|working|system|online|connected)?\b/.test(q)||/\b(compassion[ .]?sat ?1|sat ?1).*(reading|readings|complete report|full report|status|working|online|connected)\b/.test(q)||/\b(weather status|current temperature|what is the temperature|what's the temperature|temperature reading|current temp|temperature|what is the humidity|what's the humidity|humidity level|humidity|read all sensor data|sensor readings|read sensor data|latest sensor data|wifi status|wi fi status)\b/.test(q))return {type:'report'};
     if(/\b(run|start|perform|begin|execute) (a )?(full )?(system )?diagnostic(s)?\b/.test(q)||/\b(check|scan) (the )?(whole )?(system|systems) for problems\b/.test(q)||/\b(system check|full system check|run diagnostics)\b/.test(q))return {type:'diagnostic'};
