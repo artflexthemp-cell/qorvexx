@@ -283,9 +283,15 @@ let espOnline=false;
 let sensorAvailable=false;
 let latestTemperature=null;
 let latestHumidity=null;
+
 let handsFree=false;
 let recognition=null;
 let isListening=false;
+let speechActive=false;
+let speechToken=0;
+let speechRestartTimer=null;
+let recognitionStarting=false;
+
 let currentReminder=null;
 let reminderRepeatTimer=null;
 let lastFault="";
@@ -341,8 +347,9 @@ function announceFault(message,key){
 
 function clearFault(){
  lastFault="";
- document.getElementById("faultPanel").classList.remove("show");
- document.getElementById("faultPanel").textContent="";
+ const panel=document.getElementById("faultPanel");
+ panel.classList.remove("show");
+ panel.textContent="";
 }
 
 function showFault(message,key){
@@ -365,6 +372,7 @@ function saveIP(){
   alert("Please enter the ESP32 IP address.");
   return;
  }
+
  if(!/^[a-zA-Z0-9.-]+(:[0-9]+)?$/.test(value)){
   alert("Please enter a valid ESP32 IP address.");
   return;
@@ -375,6 +383,7 @@ function saveIP(){
  document.getElementById("espIP").value=espIP;
  document.getElementById("connectionMessage").textContent=
   "Saved ESP32 address: "+espIP;
+
  addChat("bot","ESP32 address saved. I will connect directly to "+espIP+".");
  checkESP32();
 }
@@ -481,11 +490,25 @@ async function checkESP32(){
 
   if(data.online===false){
    sensorAvailable=false;
+   latestTemperature=null;
+   latestHumidity=null;
+
    setStatus("wifiStatus","DISCONNECTED","offline");
-   showSensorFault();
+   setStatus("sensorStatus","NOT VERIFIED","unknown");
+   setStatus("dataStatus","NO SENSOR DATA","unknown");
+
+   document.getElementById("temperature").textContent="-- °C";
+   document.getElementById("humidity").textContent="-- %";
+   document.getElementById("mainState").textContent="WI-FI DISCONNECTED";
+   document.getElementById("mainState").className="big-state status offline";
+
    document.getElementById("connectionMessage").textContent=
     "ESP32 responded but reports its Wi-Fi is disconnected.";
-   checking=false;
+
+   showFault(
+    "The ESP32 reports that its Wi-Fi connection is disconnected.",
+    "esp32_wifi_disconnected"
+   );
    return;
   }
 
@@ -592,16 +615,19 @@ function normalise(text){
 function generateResponse(message){
  const q=normalise(message);
 
- /* REMINDER COMMANDS */
- if(q.includes("dismiss")&&q.includes("reminder")||
-    q==="dismiss it"||q==="dismiss"){
-  return dismissReminder(true);
+ if(
+  (q.includes("dismiss")&&q.includes("reminder"))||
+  q==="dismiss it"||q==="dismiss"
+ ){
+  return dismissReminder();
  }
 
- if(q.includes("snooze")&&
-    (q.includes("reminder")||q.includes("it"))||
-    q==="snooze"){
-  return snoozeReminder(true);
+ if(
+  (q.includes("snooze")&&
+   (q.includes("reminder")||q.includes("it")))||
+  q==="snooze"
+ ){
+  return snoozeReminder();
  }
 
  if(q.includes("what reminders")||q.includes("list reminders")||
@@ -609,7 +635,6 @@ function generateResponse(message){
   return describeReminders();
  }
 
- /* DEVICE STATUS */
  if(q.includes("temperature")||q.includes("humidity")||
     q.includes("weather on the satellite")||
     q.includes("satellite reading")){
@@ -698,13 +723,33 @@ function quickAsk(message){
  processMessage(message,true);
 }
 
-/* SPEECH OUTPUT */
+/* SPEECH OUTPUT — MICROPHONE SAFE MODE */
+function scheduleListeningRestart(delay=800){
+ clearTimeout(speechRestartTimer);
+
+ if(!handsFree||speechActive)return;
+
+ speechRestartTimer=setTimeout(()=>{
+  if(handsFree&&!speechActive&&!isListening){
+   startListening();
+  }
+ },delay);
+}
+
 function speakText(text){
  if(!("speechSynthesis" in window)){
   setStatus("speechStatus","NOT SUPPORTED","offline");
   return;
  }
 
+ speechActive=true;
+ clearTimeout(speechRestartTimer);
+
+ if(recognition&&isListening){
+  try{recognition.stop();}catch(error){}
+ }
+
+ const token=++speechToken;
  window.speechSynthesis.cancel();
 
  const utterance=new SpeechSynthesisUtterance(String(text));
@@ -712,23 +757,52 @@ function speakText(text){
  utterance.rate=1;
 
  utterance.onstart=()=>{
+  if(token!==speechToken)return;
   setStatus("speechStatus","SPEAKING","online");
+  setStatus("micStatus","PAUSED — QORVEX SPEAKING","unknown");
+  document.getElementById("voiceStatus").textContent="QORVEX SPEAKING...";
  };
 
  utterance.onend=()=>{
+  if(token!==speechToken)return;
+
+  speechActive=false;
   setStatus("speechStatus","READY","unknown");
+
+  if(handsFree){
+   document.getElementById("voiceStatus").textContent=
+    "RESTARTING MICROPHONE...";
+   scheduleListeningRestart(800);
+  }else{
+   document.getElementById("voiceStatus").textContent=
+    "VOICE SYSTEM READY";
+  }
  };
 
  utterance.onerror=()=>{
+  if(token!==speechToken)return;
+
+  speechActive=false;
   setStatus("speechStatus","ERROR","offline");
+
+  if(handsFree)scheduleListeningRestart(800);
  };
 
  window.speechSynthesis.speak(utterance);
 }
 
 function stopVoice(){
- if("speechSynthesis" in window)window.speechSynthesis.cancel();
+ speechToken++;
+ speechActive=false;
+ clearTimeout(speechRestartTimer);
+
+ if("speechSynthesis" in window){
+  window.speechSynthesis.cancel();
+ }
+
  setStatus("speechStatus","STOPPED","unknown");
+
+ if(handsFree)scheduleListeningRestart(800);
 }
 
 /* MICROPHONE */
@@ -749,17 +823,24 @@ function setupRecognition(){
  recognition.interimResults=false;
 
  recognition.onstart=()=>{
+  recognitionStarting=false;
   isListening=true;
-  setStatus("micStatus","LISTENING","online");
-  document.getElementById("voiceStatus").textContent="LISTENING...";
+
+  if(!speechActive){
+   setStatus("micStatus","LISTENING","online");
+   document.getElementById("voiceStatus").textContent="LISTENING...";
+  }
  };
 
  recognition.onresult=(event)=>{
+  if(speechActive)return;
+
   const spoken=event.results[event.results.length-1][0].transcript;
   processMessage(spoken,true);
  };
 
  recognition.onerror=(event)=>{
+  recognitionStarting=false;
   setStatus("micStatus","ERROR","offline");
   document.getElementById("voiceStatus").textContent=
    "MICROPHONE: "+event.error;
@@ -767,12 +848,17 @@ function setupRecognition(){
 
  recognition.onend=()=>{
   isListening=false;
+  recognitionStarting=false;
+
+  if(speechActive){
+   setStatus("micStatus","PAUSED — QORVEX SPEAKING","unknown");
+   return;
+  }
+
   setStatus("micStatus","STANDBY","unknown");
 
   if(handsFree){
-   setTimeout(()=>{
-    if(handsFree)startListening();
-   },1200);
+   scheduleListeningRestart(800);
   }else{
    document.getElementById("voiceStatus").textContent=
     "VOICE SYSTEM READY";
@@ -783,7 +869,7 @@ function setupRecognition(){
 }
 
 function startListening(){
- if(isListening)return;
+ if(speechActive||isListening||recognitionStarting)return;
 
  if(!recognition&&!setupRecognition()){
   alert("Speech recognition is not supported in this browser. Try Chrome.");
@@ -791,28 +877,43 @@ function startListening(){
  }
 
  try{
+  recognitionStarting=true;
   recognition.start();
- }catch(error){}
+ }catch(error){
+  recognitionStarting=false;
+ }
 }
 
 function stopListening(){
  handsFree=false;
+ clearTimeout(speechRestartTimer);
+
  document.getElementById("handsBtn").textContent="ENABLE HANDS-FREE";
 
- if(recognition&&isListening)recognition.stop();
+ if(recognition&&isListening){
+  try{recognition.stop();}catch(error){}
+ }
 
  setStatus("micStatus","STANDBY","unknown");
  document.getElementById("voiceStatus").textContent="VOICE SYSTEM READY";
 }
 
 function toggleHandsFree(){
- handsFree=!handsFree;
+ if(handsFree){
+  stopListening();
+  return;
+ }
 
- document.getElementById("handsBtn").textContent=
-  handsFree?"DISABLE HANDS-FREE":"ENABLE HANDS-FREE";
+ handsFree=true;
+ document.getElementById("handsBtn").textContent="DISABLE HANDS-FREE";
 
- if(handsFree)startListening();
- else stopListening();
+ if(speechActive){
+  document.getElementById("voiceStatus").textContent=
+   "WAITING FOR SPEECH TO FINISH...";
+  return;
+ }
+
+ startListening();
 }
 
 /* TEACH QORVEX */
@@ -1022,7 +1123,7 @@ function closeReminderAlert(){
 }
 
 /* DISMISS REMINDER */
-function dismissReminder(fromVoice=false){
+function dismissReminder(){
  if(!currentReminder){
   return "There is no active reminder to dismiss.";
  }
@@ -1036,15 +1137,11 @@ function dismissReminder(fromVoice=false){
  closeReminderAlert();
  renderReminders();
 
- const reply="Dismissed reminder: "+message+".";
-
- if(fromVoice)addChat("bot",reply);
-
- return reply;
+ return "Dismissed reminder: "+message+".";
 }
 
 /* SNOOZE REMINDER */
-function snoozeReminder(fromVoice=false){
+function snoozeReminder(){
  if(!currentReminder){
   return "There is no active reminder to snooze.";
  }
@@ -1067,11 +1164,7 @@ function snoozeReminder(fromVoice=false){
  closeReminderAlert();
  renderReminders();
 
- const reply="Reminder snoozed for five minutes: "+message+".";
-
- if(fromVoice)addChat("bot",reply);
-
- return reply;
+ return "Reminder snoozed for five minutes: "+message+".";
 }
 
 /* AUTOMATIC STARTUP */
