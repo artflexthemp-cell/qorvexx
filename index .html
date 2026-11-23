@@ -266,7 +266,8 @@ textarea {min-height:75px;resize:vertical}
       <p class="muted" id="coreMessage">Ready to assist, Boss.</p>
       <div class="controls">
         <button class="primary" id="handsFreeButton" onclick="toggleHandsFree()">HANDS-FREE: OFF</button>
-        <button onclick="startListening()">🎤 TALK</button>
+        <button onclick="startMicrophoneManually()">🎤 TALK</button>
+        <button onclick="resumeMicrophoneManually()" class="success">RESUME MIC</button>
         <button onclick="stopListening()">STOP MIC</button>
         <button onclick="stopSpeaking()">STOP VOICE</button>
       </div>
@@ -1332,8 +1333,338 @@ if ("speechSynthesis" in window) {
     window.setMood('serious','A reminder requires your attention, Boss.');
   };
 
-  window.addEventListener('load',window.startQorvex);
+  window.addEventListener('load',function(){window.startQorvex();});
 })();
 </script>
+<script>
+/* =====================================================
+   QORVEX 7.3 — RELIABLE VOICE, MONITORING & LEARNING
+   Additive upgrade: retains the original QORVEX 7.2 UI.
+===================================================== */
+(function(){
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const STORAGE = {alerts:'qorvex_alert_log', corrections:'qorvex_corrections', lastUpdate:'qorvex_last_sensor_update'};
+  let manualMicPaused = false;
+  let manualMicStopped = false;
+  let listeningTimer = null;
+  let monitorTimer = null;
+  let checkinTimer = null;
+  let backgroundDeliveryTimer = null;
+  let pendingSpeechQueue = [];
+  let lastUserActivity = 0;
+  let monitorRunning = false;
+  let monitorBusy = false;
+  let consecutiveEspFailures = 0;
+  let lastSensor = null;
+  let lastTemp = null;
+  let alertLog = readArray(STORAGE.alerts);
+  let corrections = readArray(STORAGE.corrections);
+  let alertStates = {esp:false, sensor:false, invalid:false};
+  let startupGreetingPending = true;
+  let reminderVoiceTarget = null;
+  let reminderLastSpoken = 0;
+  const originalSetMood = window.setMood;
+
+  function readArray(key){try{const x=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(x)?x:[];}catch(e){return[];}}
+  function saveArray(key,value){try{localStorage.setItem(key,JSON.stringify(value));return true;}catch(e){return false;}}
+  function addStyle(){
+    const css=`
+      .q73-panel{margin-top:15px}.q73-alerts{max-height:230px;overflow:auto}.q73-alert{padding:9px;margin:7px 0;border:1px solid #34516a;border-left:4px solid var(--yellow);border-radius:8px;background:#071522;font-size:12px}.q73-alert.critical{border-left-color:var(--red)}.q73-alert.recovery{border-left-color:var(--green)}.q73-alert small{display:block;color:var(--muted);margin-top:4px}.q73-status{font-size:12px;color:var(--muted)}.q73-correction{padding:9px;margin:7px 0;background:#071522;border:1px solid #1a3b50;border-radius:8px;font-size:12px}.q73-correction button{margin:6px 5px 0 0}.q73-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}.q73-actions button{flex:0 0 auto}
+    `;
+    const style=document.createElement('style');style.textContent=css;document.head.appendChild(style);
+  }
+  function addPanels(){
+    if(!$('q73AlertPanel')){
+      const panel=document.createElement('section');panel.className='panel q73-panel';panel.id='q73AlertPanel';
+      panel.innerHTML=`<h2>SYSTEM ALERTS & DIAGNOSTICS</h2><div class="stat"><span>Background monitoring</span><strong id="q73MonitorStatus">Starting...</strong></div><div class="stat"><span>Last successful sensor update</span><strong id="q73LastGood">Not yet confirmed</strong></div><div class="stat"><span>Temperature trend</span><strong id="q73TempTrend">Waiting for readings</strong></div><div class="q73-actions"><button onclick="qorvexRunDiagnostics()" class="primary">RUN DIAGNOSTICS</button><button onclick="qorvexClearResolvedAlerts()">CLEAR RESOLVED</button></div><div id="q73AlertList" class="q73-alerts section"></div>`;
+      const lower=document.querySelector('.lower-grid');if(lower)lower.insertAdjacentElement('afterend',panel);else document.querySelector('main').appendChild(panel);
+    }
+    if(!$('q73CorrectionPanel')){
+      const panel=document.createElement('section');panel.className='panel q73-panel';panel.id='q73CorrectionPanel';
+      panel.innerHTML=`<h2>LEARNING CORRECTIONS</h2><p class="muted">Teach QORVEX how to interpret a phrase in future commands. Corrections are applied before command processing and are saved in this browser.</p><div class="two-col"><div><label class="muted" for="q73Wrong">Incorrect word or phrase</label><input id="q73Wrong" placeholder="Phrase QORVEX misheard"></div><div><label class="muted" for="q73Right">Correct meaning or replacement</label><input id="q73Right" placeholder="Correct phrase"></div></div><div class="q73-actions"><button class="primary" onclick="qorvexSaveCorrection()">SAVE CORRECTION</button></div><div id="q73CorrectionList" class="section"></div>`;
+      $('q73AlertPanel').insertAdjacentElement('afterend',panel);
+    }
+    if(!$('q74WellnessPanel')){
+      const wellness=document.createElement('section');
+      wellness.className='panel q73-panel';
+      wellness.id='q74WellnessPanel';
+      wellness.innerHTML=`<h2>PERSONAL WELLNESS CHECK-INS</h2><p class="muted">QORVEX can check in while this dashboard is open. It cannot tell whether you are physically safe unless you tell it.</p><div class="stat"><span>Check-in schedule</span><strong id="q74CheckinStatus">Every hour</strong></div><div class="q73-actions"><button class="primary" onclick="qorvexCheckInNow()">CHECK ON ME NOW</button><button onclick="qorvexEnableCheckins()">ENABLE CHECK-INS</button><button class="danger" onclick="qorvexDisableCheckins()">STOP CHECK-INS</button></div>`;
+      $('q73CorrectionPanel').insertAdjacentElement('afterend',wellness);
+    }
+  }
+  function setStatus(id,text,ok){const el=$(id);if(!el)return;el.textContent=text;el.style.color=ok===true?'var(--green)':ok===false?'var(--red)':'var(--yellow)';}
+  function renderAlerts(){
+    const host=$('q73AlertList');if(!host)return;host.innerHTML='';
+    if(!alertLog.length){host.textContent='No system alerts recorded.';return;}
+    alertLog.slice().reverse().slice(0,30).forEach(a=>{const div=document.createElement('div');div.className='q73-alert '+(a.level==='CRITICAL'?'critical':a.level==='RECOVERY'?'recovery':'');const strong=document.createElement('strong');strong.textContent=a.level+' — '+a.message;const small=document.createElement('small');small.textContent=new Date(a.time).toLocaleString()+(a.resolved?' · RESOLVED':' · ACTIVE');div.append(strong,small);host.appendChild(div);});
+  }
+  window.queueBackgroundSpeech=function(message){if(!message)return;if(!pendingSpeechQueue.includes(message))pendingSpeechQueue.push(message);};
+  function deliverPendingSpeech(){
+    if(!pendingSpeechQueue.length||isSpeaking||qorvexIsSleeping())return;
+    if(Date.now()-lastUserActivity<3500)return;
+    const active=document.activeElement;if(active&&['chatInput','teachQuestion','teachAnswer','q73Wrong','q73Right'].includes(active.id))return;
+    const message=pendingSpeechQueue.shift();
+    if(recognition&&isListening){try{recognition.stop();}catch(e){}isListening=false;}
+    window.reply(message);
+  }
+  function recordAlert(level,key,message,resolved){
+    const existing=alertLog.find(a=>a.key===key&&!a.resolved);
+    if(resolved){if(existing){existing.resolved=true;existing.resolvedAt=new Date().toISOString();alertLog.push({id:Date.now()+Math.random(),key:key+'-recovery-'+Date.now(),level:'RECOVERY',message:message,time:new Date().toISOString(),resolved:false});saveArray(STORAGE.alerts,alertLog);renderAlerts();window.queueBackgroundSpeech('Connection restored. '+message);return;}return;}
+    if(existing)return;
+    alertLog.push({id:Date.now()+Math.random(),key,level,message,time:new Date().toISOString(),resolved:false});
+    alertLog=alertLog.slice(-100);saveArray(STORAGE.alerts,alertLog);renderAlerts();
+    window.queueBackgroundSpeech((level==='CRITICAL'?'Critical alert. ':level==='WARNING'?'Warning. ':'')+message);
+  }
+  function applyCorrections(input){let out=String(input||'');corrections.forEach(c=>{if(!c.from)return;const escaped=c.from.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');out=out.replace(new RegExp('\\b'+escaped+'\\b','gi'),c.to);});return out;}
+  function renderCorrections(){const host=$('q73CorrectionList');if(!host)return;host.innerHTML='';if(!corrections.length){host.textContent='No corrections saved yet.';return;}corrections.forEach((c,i)=>{const div=document.createElement('div');div.className='q73-correction';const line=document.createElement('div');line.textContent='“'+c.from+'” → “'+c.to+'”';const del=document.createElement('button');del.className='danger';del.textContent='DELETE';del.onclick=()=>{corrections.splice(i,1);saveArray(STORAGE.corrections,corrections);renderCorrections();};div.append(line,del);host.appendChild(div);});}
+  window.qorvexSaveCorrection=function(){const from=$('q73Wrong').value.trim(),to=$('q73Right').value.trim();if(!from||!to){alert('Enter both the phrase to correct and its replacement.');return;}corrections=corrections.filter(c=>c.from.toLowerCase()!==from.toLowerCase());corrections.push({from,to,createdAt:new Date().toISOString()});if(!saveArray(STORAGE.corrections,corrections)){alert('The correction could not be saved in this browser.');return;}$('q73Wrong').value='';$('q73Right').value='';renderCorrections();window.reply('Correction saved, Boss. I will apply it to future recognised commands.');};
+  window.qorvexClearResolvedAlerts=function(){alertLog=alertLog.filter(a=>!a.resolved);saveArray(STORAGE.alerts,alertLog);renderAlerts();};
+
+  // Replace legacy mood updater; the old implementation referenced a missing coreFace element.
+  window.setMood=function(mood,message){const head=$('robotHead'),state=$('coreState'),note=$('coreMessage');if(head){head.classList.remove('idle','happy','thinking','serious','speaking','listening','sleeping');head.classList.add(mood||'idle');}if(state)state.textContent=(mood||'idle').toUpperCase();if(note)note.textContent=message||'Ready to assist, Boss.';};
+
+  function updateMicUI(label){if($('micStatus'))$('micStatus').textContent=label;}
+  function clearListenTimer(){if(listeningTimer){clearTimeout(listeningTimer);listeningTimer=null;}}
+  function canAutoListen(){return !!handsFree&&!manualMicPaused&&!manualMicStopped&&!isSpeaking&&!qorvexIsSleeping();}
+  function qorvexIsSleeping(){return $('coreState')&&$('coreState').textContent.includes('SLEEP');}
+  function scheduleListening(delay){clearListenTimer();if(!canAutoListen())return;listeningTimer=setTimeout(()=>{listeningTimer=null;if(canAutoListen())window.startListening();},delay||850);}
+  window.scheduleListening=scheduleListening;
+  window.startListening=function(){
+    if(isSpeaking){updateMicUI('Waiting until QORVEX finishes speaking...');return;}
+    if(manualMicPaused){updateMicUI('Microphone manually paused');return;}
+    if(manualMicStopped){updateMicUI('Microphone manually stopped — say “Start microphone” using the button or press TALK');return;}
+    const API=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!API){updateMicUI('Voice recognition is not supported in this browser.');return;}
+    if(!recognition){recognition=new API();recognition.lang='en-ZA';recognition.continuous=false;recognition.interimResults=false;recognition.maxAlternatives=1;
+      recognition.onstart=()=>{isListening=true;updateMicUI('Listening for Boss...');if(!qorvexIsSleeping())window.setMood('listening','I am listening, Boss.');};
+      recognition.onresult=event=>{const raw=event.results[event.results.length-1][0].transcript.trim();if(!raw)return;const transcript=applyCorrections(raw);$('chatInput').value=transcript;window.sendMessage();};
+      recognition.onerror=event=>{isListening=false;updateMicUI('Microphone error: '+event.error);if(event.error==='not-allowed'||event.error==='service-not-allowed'){manualMicStopped=true;handsFree=false;if($('handsFreeButton'))$('handsFreeButton').textContent='HANDS-FREE: OFF';recordAlert('WARNING','mic-permission','Microphone permission is blocked. Allow microphone access in the browser settings.',false);}else if(canAutoListen())scheduleListening(1800);};
+      recognition.onend=()=>{isListening=false;if(canAutoListen())scheduleListening(900);else if(manualMicPaused)updateMicUI('Microphone manually paused');else if(manualMicStopped||!handsFree)updateMicUI('Microphone stopped');};
+    }
+    if(isListening)return;
+    try{recognition.start();}catch(e){updateMicUI('Microphone is starting. Please wait.');}
+  };
+  window.startMicrophoneManually=function(){manualMicPaused=false;manualMicStopped=false;handsFree=false;if($('handsFreeButton'))$('handsFreeButton').textContent='HANDS-FREE: OFF';window.startListening();};
+  window.resumeMicrophoneManually=function(){const message=resumeMic();window.speak(message);};
+  window.stopListening=function(){manualMicStopped=true;manualMicPaused=false;handsFree=false;clearListenTimer();if(recognition&&isListening){try{recognition.stop();}catch(e){}}isListening=false;if($('handsFreeButton'))$('handsFreeButton').textContent='HANDS-FREE: OFF';updateMicUI('Microphone stopped');window.setMood('idle','Microphone stopped.');};
+  function pauseMic(){manualMicPaused=true;clearListenTimer();if(recognition&&isListening){try{recognition.stop();}catch(e){}}isListening=false;updateMicUI('Microphone manually paused');return 'Microphone paused, Boss. It will stay paused until you resume it.';}
+  function resumeMic(){manualMicPaused=false;manualMicStopped=false;handsFree=true;if($('handsFreeButton'))$('handsFreeButton').textContent='HANDS-FREE: ON';updateMicUI('Resuming microphone...');scheduleListening(400);return 'Microphone resumed, Boss. I am listening.';}
+  function startMic(){manualMicPaused=false;manualMicStopped=false;handsFree=true;if($('handsFreeButton'))$('handsFreeButton').textContent='HANDS-FREE: ON';scheduleListening(300);return 'Microphone started, Boss.';}
+  const priorSleep=window.sleepQorvex;
+  const priorWake=window.wakeQorvex;
+  window.sleepQorvex=function(){manualMicPaused=false;manualMicStopped=false;if(typeof priorSleep==='function')priorSleep();};
+  window.wakeQorvex=function(){manualMicPaused=false;manualMicStopped=false;if(typeof priorWake==='function')priorWake();};
+  window.toggleHandsFree=function(){if(handsFree&&!manualMicPaused&&!manualMicStopped){handsFree=false;clearListenTimer();if(recognition&&isListening){try{recognition.stop();}catch(e){}}isListening=false;if($('handsFreeButton'))$('handsFreeButton').textContent='HANDS-FREE: OFF';updateMicUI('Hands-free disabled');return;}manualMicPaused=false;manualMicStopped=false;handsFree=true;if($('handsFreeButton'))$('handsFreeButton').textContent='HANDS-FREE: ON';window.speak('Hands-free mode activated, Boss. I am listening.');};
+
+  // Speech owns the microphone lifecycle: recognition is stopped before speaking and restarted only after onend.
+  window.stopSpeaking=function(){if(window.speechSynthesis)window.speechSynthesis.cancel();isSpeaking=false;if(canAutoListen())scheduleListening(500);window.setMood('idle','Voice stopped.');};
+  window.speak=function(text,options){options=options||{};if(qorvexIsSleeping()&&!options.forceWake)return;if(!('speechSynthesis'in window)||typeof SpeechSynthesisUtterance==='undefined'){addChat('Speech output is not supported by this browser.','q');return;}clearListenTimer();if(recognition&&isListening){try{recognition.stop();}catch(e){}}isListening=false;window.speechSynthesis.cancel();isSpeaking=true;window.setMood('speaking','Speaking to Boss...');const utterance=new SpeechSynthesisUtterance(String(text));utterance.lang='en-ZA';utterance.rate=.94;utterance.pitch=.85;utterance.volume=1;const voices=window.speechSynthesis.getVoices();const voice=voices.find(v=>v.lang.toLowerCase()==='en-za')||voices.find(v=>v.lang.toLowerCase().startsWith('en'));if(voice)utterance.voice=voice;let finished=false;const finish=()=>{if(finished)return;finished=true;isSpeaking=false;window.setMood('idle','Ready for your next instruction, Boss.');if(canAutoListen())scheduleListening(950);};utterance.onend=finish;utterance.onerror=finish;window.speechSynthesis.speak(utterance);};
+  window.reply=function(text){addChat(text,'q');window.speak(text);};
+
+  // Voice command intent handling. Corrections are applied before this layer.
+  function intent(text){const q=String(text).toLowerCase().replace(/[^a-z0-9.\s]/g,' ').replace(/\s+/g,' ').trim();
+    if(/\b(sleep qorvex|qorvex sleep|go to sleep|enter sleep mode)\b/.test(q)){window.sleepQorvex();return {type:'silent'};}
+    if(/\b(wake up qorvex|qorvex wake up|wake qorvex|qorvex wake)\b/.test(q)){window.wakeQorvex();return {type:'silent'};}
+    if(/\b(pause|pause the) microphone\b/.test(q))return {type:'direct',text:pauseMic()};
+    if(/\b(resume|unpause) (the )?microphone\b/.test(q))return {type:'direct',text:resumeMic()};
+    if(/\b(stop|turn off|disable) (the )?microphone\b/.test(q))return {type:'direct',text:(window.stopListening(),'Microphone stopped, Boss.')};
+    if(/\b(start|turn on|activate) (the )?microphone\b/.test(q))return {type:'direct',text:startMic()};
+    if(/\bstop speaking\b|\bstop talking\b/.test(q)){window.stopSpeaking();return {type:'silent'};}
+    if(/\b(read|list) (my )?(upcoming )?reminders\b/.test(q))return {type:'direct',text:reminders.length?'Your saved reminders are: '+reminders.map((r,i)=>(i+1)+'. '+r.message+', due '+new Date(r.due).toLocaleString()).join('. '):'You have no saved upcoming reminders, Boss.'};
+    if(/\b(dismiss|delete) (that |the )?reminder\b/.test(q)){if(currentReminder){window.dismissReminder();return {type:'silent'};}if(reminders.length===1){reminders.shift();saveReminders();return {type:'direct',text:'The reminder has been dismissed, Boss.'};}if(reminders.length>1)return {type:'direct',text:'There are several upcoming reminders. Please tell me which reminder to dismiss, or use its number from the reminder list.'};return {type:'direct',text:'There is no active reminder to dismiss.'};}
+    const snooze=q.match(/\bsnooze (the )?reminder(?: for)?(?: (\d+) minutes?)?\b/);if(snooze){if(currentReminder){const mins=Math.max(1,Math.min(1440,Number(snooze[2]||5)));const r={id:Date.now()+Math.random(),message:currentReminder.message,due:new Date(Date.now()+mins*60000).toISOString()};if(reminderRepeatTimer)clearInterval(reminderRepeatTimer);currentReminder=null;$('reminderAlert').classList.remove('active');reminders.push(r);saveReminders();return {type:'direct',text:'Reminder snoozed for '+mins+' minutes, Boss.'};}return {type:'direct',text:'There is no active reminder to snooze.'};}
+    if(/\b(complete|full|give me|read|tell me|what is|how is|is).*(compassion[ .]?sat ?1|sat ?1).*(reading|readings|report|status|working|system|online|connected)?\b/.test(q)||/\b(compassion[ .]?sat ?1|sat ?1).*(reading|readings|complete report|full report|status|working|online|connected)\b/.test(q)||/\b(weather status|current temperature|what is the temperature|what's the temperature|temperature reading|current temp|temperature|what is the humidity|what's the humidity|humidity level|humidity|read all sensor data|sensor readings|read sensor data|latest sensor data|wifi status|wi fi status)\b/.test(q))return {type:'report'};
+    if(/\b(run|start|perform|begin|execute) (a )?(full )?(system )?diagnostic(s)?\b/.test(q)||/\b(check|scan) (the )?(whole )?(system|systems) for problems\b/.test(q)||/\b(system check|full system check|run diagnostics)\b/.test(q))return {type:'diagnostic'};
+    return {type:'normal',text:applyCorrections(text)};
+  }
+  function currentReport(){if(!lastSensor)return 'I cannot provide a live Compassion.Sat 1 reading yet, Boss. The ESP32 has not supplied a verified sensor response. I will not invent temperature or humidity values.';const age=Math.max(0,Math.round((Date.now()-lastSensor.time)/1000));return 'Compassion.Sat 1 report. ESP32: responding to the latest check. Browser network: '+(navigator.onLine?'online':'offline or limited')+'. ESP32 Wi-Fi: '+(lastSensor.wifiReported===true?'connected (reported by firmware)':lastSensor.wifiReported===false?'disconnected (reported by firmware)':'not separately reported by firmware')+'. DHT22: '+(lastSensor.sensorOK?'valid readings received':'no valid readings')+'. Temperature: '+(lastSensor.sensorOK?lastSensor.temperature.toFixed(1)+' degrees Celsius':'unavailable')+'. Humidity: '+(lastSensor.sensorOK?lastSensor.humidity.toFixed(1)+' percent':'unavailable')+'. Last successful valid sensor update: '+(lastSensor.sensorOK?new Date(lastSensor.time).toLocaleString():(localStorage.getItem(STORAGE.lastUpdate)?new Date(localStorage.getItem(STORAGE.lastUpdate)).toLocaleString():'none recorded'))+'.';}
+  window.sendMessage=async function(){const input=$('chatInput');const raw=input.value.trim();if(!raw)return;input.value='';lastUserActivity=Date.now();addChat(raw,'user');const parsed=intent(raw);if(parsed.type==='silent')return;if(parsed.type==='direct'){window.reply(parsed.text);return;}if(parsed.type==='report'||parsed.type==='diagnostic'){window.setMood('thinking','Retrieving live Compassion.Sat 1 data...');addChat(parsed.type==='report'?'Checking live project readings...':'Running system diagnostics...','q');await window.checkBridge({quiet:true});const report=currentReport();window.reply(parsed.type==='diagnostic'?report+' Diagnostic note: the browser can verify only the ESP32 endpoint and fields it returns; it cannot inspect the board hardware directly.':report);return;}if(qorvexIsSleeping()){window.reply('I am in sleep mode, Boss. Say “QORVEX wake up” or press WAKE QORVEX.');return;}window.setMood('thinking','Processing your message, Boss...');const answer=window.generateResponse(parsed.text);window.setTimeout(()=>window.reply(answer),180);};
+
+  const oldGenerate=window.generateResponse;
+  window.generateResponse=function(input){const corrected=applyCorrections(input);const q=corrected.toLowerCase().replace(/[^a-z0-9.\s]/g,' ').replace(/\s+/g,' ').trim();if(/\b(weather status|current temperature|temperature reading|humidity|compassion[ .]?sat ?1|esp32 connection)\b/.test(q))return currentReport();return oldGenerate(corrected);};
+
+  // Live endpoint monitor. A failed fetch is described as unreachable/unverified, not proof of board failure.
+  window.checkBridge=async function(options){options=options||{};const field=$('espIP');let host=(field&&field.value.trim())||localStorage.getItem('qorvex_esp32_ip')||'192.168.8.115';if(field&&!field.value.trim())field.value=host;if(!/^https?:\/\//i.test(host))host='http://'+host;const base=host.replace(/\/$/,'');setStatus('espStatus','CHECKING...',null);const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),4500);try{const response=await fetch(base+'/data?time='+Date.now(),{cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();const toNum=v=>typeof v==='number'?v:(typeof v==='string'&&v.trim()!==''?Number(v):NaN);const temperature=toNum(data.temperature),humidity=toNum(data.humidity);const sensorOK=Number.isFinite(temperature)&&temperature>=-40&&temperature<=80&&Number.isFinite(humidity)&&humidity>=0&&humidity<=100;const explicitOnline=data.online===true||data.connected===true;const wifiReported=typeof data.wifiConnected==='boolean'?data.wifiConnected:(typeof data.wifi_connected==='boolean'?data.wifi_connected:(typeof data.wifi==='boolean'?data.wifi:null));const endpointOK=response.ok&&(sensorOK||explicitOnline);if(!endpointOK)throw new Error('Endpoint responded without a valid online flag or usable sensor values');
+      const now=Date.now();const previousConnected=alertStates.esp;consecutiveEspFailures=0;alertStates.esp=false;setStatus('espStatus','RESPONDING',true);setStatus('wifiStatus',wifiReported===true?'WIFI CONNECTED (ESP32 REPORT)':wifiReported===false?'WIFI DISCONNECTED (ESP32 REPORT)':'PATH REACHABLE — WIFI NOT REPORTED',wifiReported===true?true:wifiReported===false?false:null);setStatus('sensorStatus',sensorOK?'READING OK':'NO VALID READING',sensorOK?true:false);if(sensorOK){$('temperature').textContent=temperature.toFixed(1)+' °C';$('humidity').textContent=humidity.toFixed(1)+' %';if(lastTemp!==null){const delta=temperature-lastTemp;$('q73TempTrend').textContent=Math.abs(delta)<.2?'Stable':(delta>0?'Rising ':'Falling ')+Math.abs(delta).toFixed(1)+' °C';}lastTemp=temperature;lastSensor={temperature,humidity,sensorOK:true,time:now,data,wifiReported};localStorage.setItem(STORAGE.lastUpdate,new Date(now).toISOString());$('lastUpdate').textContent=new Date(now).toLocaleTimeString();$('q73LastGood').textContent=new Date(now).toLocaleString();recordAlert('RECOVERY','esp-down','Compassion.Sat 1 communication with the ESP32 has been restored.',true);recordAlert('RECOVERY','sensor-down','The DHT22 sensor readings are available again.',true);alertStates.sensor=false;}else{lastSensor={sensorOK:false,time:now,data,wifiReported};recordAlert('WARNING','sensor-down','The ESP32 is responding, but valid DHT22 temperature and humidity readings are unavailable.',false);alertStates.sensor=true;}
+      $('systemStatus').textContent=sensorOK?'COMPASSION.SAT 1 ONLINE':'ESP32 RESPONDING — SENSOR DATA INVALID';$('systemStatus').style.color=sensorOK?'var(--green)':'var(--yellow)';if($('missionMessage'))$('missionMessage').textContent=sensorOK?'Live ESP32 JSON received. Displayed sensor readings are actual values from the endpoint.':'ESP32 endpoint responded, but the sensor values are missing or outside expected ranges.';if(previousConnected)recordAlert('RECOVERY','esp-down','Compassion.Sat 1 communication with the ESP32 has been restored.',true);return {ok:true,sensorOK,data};
+    }catch(error){setStatus('espStatus','NOT REACHABLE',false);setStatus('wifiStatus','NOT VERIFIED',null);setStatus('sensorStatus','NOT VERIFIED',null);$('systemStatus').textContent='ESP32 CONNECTION UNVERIFIED';$('systemStatus').style.color='var(--yellow)';if($('missionMessage'))$('missionMessage').textContent='Could not read the ESP32 endpoint: '+error.message+'. Possible causes include board power, IP address, Wi-Fi, browser CORS or network restrictions. This browser error alone does not prove the board is offline.';consecutiveEspFailures++;if(consecutiveEspFailures>=3&&!alertStates.esp){recordAlert('CRITICAL','esp-down','Compassion.Sat 1 has failed three consecutive communication checks with the ESP32 endpoint. The cause is not yet confirmed.',false);alertStates.esp=true;}return {ok:false,error:error.message};}finally{clearTimeout(timeout);}};
+
+  window.qorvexRunDiagnostics=async function(){setStatus('q73MonitorStatus',monitorRunning?'ACTIVE':'NOT RUNNING',monitorRunning);const result=await window.checkBridge({quiet:true});const lines=['Browser network: '+(navigator.onLine?'online':'offline/limited'),'ESP32 endpoint: '+(result.ok?'responding':'not reachable from this browser'),'DHT22 data: '+(result.ok?(result.sensorOK?'valid':'missing or invalid'):'not verified'),'Background monitor: '+(monitorRunning?'active':'not active')];window.reply('Diagnostics complete. '+lines.join('. ')+'. A failed browser request cannot identify the exact physical cause.');};
+
+  function startMonitor(){if(monitorTimer)clearInterval(monitorTimer);monitorRunning=true;setStatus('q73MonitorStatus','ACTIVE',true);monitorTimer=setInterval(()=>{window.checkBridge({quiet:true});},12000);}
+  function renderAll(){renderAlerts();renderCorrections();if($('q73LastGood')){const saved=localStorage.getItem(STORAGE.lastUpdate);$('q73LastGood').textContent=saved?new Date(saved).toLocaleString():'Not yet confirmed';}}
+
+  // Replace startup to prevent duplicate legacy timers and make monitoring state explicit.
+  window.startQorvex=function(){addStyle();addPanels();renderKnowledge();renderReminders();renderAll();updateClock();const ip=localStorage.getItem('qorvex_esp32_ip');if(ip&&$('espIP'))$('espIP').value=ip;if(clockTimer)clearInterval(clockTimer);if(reminderTimer)clearInterval(reminderTimer);clockTimer=setInterval(updateClock,1000);reminderTimer=setInterval(checkReminders,1000);startMonitor();if(checkinTimer)clearInterval(checkinTimer);checkinTimer=setInterval(()=>{if(document.visibilityState==='visible'&&!isSpeaking&&!isListening&&!currentReminder&&!qorvexIsSleeping())window.queueBackgroundSpeech('Boss, just checking in. Do you need help with anything?');},60*60*1000);if(queueTimer)clearInterval(queueTimer);if(backgroundDeliveryTimer)clearInterval(backgroundDeliveryTimer);backgroundDeliveryTimer=setInterval(deliverPendingSpeech,1000);addChat('QORVEX 7.3 online. Voice controls, learning corrections and Compassion.Sat 1 monitoring are ready.','q');window.setMood('idle','QORVEX systems initialised. Ready to assist, Boss.');if(startupGreetingPending){startupGreetingPending=false;} };
+
+  // Keep reminder alert behaviour non-repeating and make due reminders visible in the dashboard.
+  window.showReminderAlert=function(){if(!currentReminder)return;$('reminderAlert').classList.add('active');$('alertText').textContent=currentReminder.message;window.setMood('serious','A reminder requires your attention, Boss.');window.queueBackgroundSpeech('Boss, your reminder. '+currentReminder.message);};
+  // Voice reminder creation: “remind me to ... in 10 minutes”.
+  const originalSend=window.sendMessage;
+  window.sendMessage=async function(){
+    const input=$('chatInput');const raw=input.value.trim();const q=raw.toLowerCase();lastUserActivity=Date.now();
+    const relative=q.match(/^remind me to (.+?) in (\d+) (minutes?|hours?|days?)$/);
+    let task='',due=null;
+    if(relative){task=relative[1].trim();const amount=Number(relative[2]);const unit=relative[3];const factor=unit.startsWith('minute')?60000:unit.startsWith('hour')?3600000:86400000;due=new Date(Date.now()+Math.min(amount,unit.startsWith('day')?30:unit.startsWith('hour')?168:10080)*factor);}
+    if(!due){
+      const tomorrow=q.match(/^remind me to (.+?) tomorrow at (\d{1,2})(?::(\d{2}))?\s*(am|pm)$/);
+      const at=q.match(/^remind me to (.+?) at (\d{1,2})(?::(\d{2}))?\s*(am|pm)$/);
+      const match=tomorrow||at;
+      if(match){task=match[1].trim();let h=Number(match[2]),m=Number(match[3]||0);if(h<1||h>12||m>59){window.reply('Please give me a valid time, Boss.');return;}if(match[4]==='pm'&&h!==12)h+=12;if(match[4]==='am'&&h===12)h=0;due=new Date();due.setHours(h,m,0,0);if(tomorrow)due.setDate(due.getDate()+1);else if(due<=new Date())due.setDate(due.getDate()+1);}
+    }
+    if(task&&due){input.value='';addChat(raw,'user');reminders.push({id:Date.now()+Math.random(),message:task,due:due.toISOString()});saveReminders();window.reply('Reminder saved for '+due.toLocaleString()+', Boss.');return;}
+    return originalSend();
+  };
+
+  // Keep microphone commands working through the correction-aware command path.
+  window.addEventListener('online',()=>{recordAlert('RECOVERY','browser-network','The browser reports that network connectivity has returned.',true);});
+  window.addEventListener('offline',()=>recordAlert('WARNING','browser-network','The browser reports that network connectivity is offline. ESP32 reachability may be affected.',false));
+  window.addEventListener('beforeunload',()=>{monitorRunning=false;if(monitorTimer)clearInterval(monitorTimer);});
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&monitorRunning){setStatus('q73MonitorStatus','ACTIVE',true);window.checkBridge({quiet:true});}else if(monitorRunning){setStatus('q73MonitorStatus','TAB HIDDEN — CHECKS MAY BE THROTTLED',null);}});
+  // Personal check-ins: spoken prompts, user-controlled schedule, and supportive responses.
+  let wellnessEnabled = localStorage.getItem('qorvex_wellness_enabled') !== 'false';
+  let wellnessIntervalMinutes = Math.max(5, Math.min(1440, Number(localStorage.getItem('qorvex_wellness_minutes') || 60)));
+  let wellnessTimeout = null;
+  function updateWellnessStatus(){
+    const el=$('q74CheckinStatus');
+    if(el)el.textContent=wellnessEnabled?'Every '+wellnessIntervalMinutes+' minutes':'Paused';
+  }
+  function scheduleWellnessCheckins(){
+    if(checkinTimer)clearInterval(checkinTimer);
+    checkinTimer=null;
+    if(!wellnessEnabled)return;
+    checkinTimer=setInterval(()=>{
+      if(document.visibilityState==='visible'&&!isSpeaking&&!isListening&&!currentReminder&&!qorvexIsSleeping()){
+        window.queueBackgroundSpeech('Boss, just checking in. How are you doing? Would you like to talk or need help with anything?');
+      }
+    },wellnessIntervalMinutes*60000);
+    updateWellnessStatus();
+  }
+  window.qorvexEnableCheckins=function(){
+    wellnessEnabled=true;
+    localStorage.setItem('qorvex_wellness_enabled','true');
+    scheduleWellnessCheckins();
+    window.reply('Personal check-ins are enabled, Boss. I will check on you every '+wellnessIntervalMinutes+' minutes while the dashboard is open.');
+  };
+  window.qorvexDisableCheckins=function(){
+    wellnessEnabled=false;
+    localStorage.setItem('qorvex_wellness_enabled','false');
+    if(checkinTimer)clearInterval(checkinTimer);
+    checkinTimer=null;
+    if(wellnessTimeout)clearTimeout(wellnessTimeout);
+    wellnessTimeout=null;
+    updateWellnessStatus();
+    window.reply('Understood, Boss. I have paused personal check-ins. You can ask me to check on you whenever you want.');
+  };
+  window.qorvexCheckInNow=function(){
+    window.reply('I am checking in, Boss. How are you doing today? Is there anything you would like help with?');
+  };
+  function handleWellnessCommand(q){
+    if(/\b(stop|disable|pause|turn off) (the )?(personal )?(wellness )?check[ -]?ins?\b/.test(q) || /\bstop checking on me\b/.test(q)){
+      wellnessEnabled=false;localStorage.setItem('qorvex_wellness_enabled','false');
+      if(checkinTimer)clearInterval(checkinTimer);checkinTimer=null;
+      if(wellnessTimeout)clearTimeout(wellnessTimeout);wellnessTimeout=null;updateWellnessStatus();
+      return 'Of course, Boss. I have stopped the personal check-ins. You can ask me to check on you whenever you want.';
+    }
+    const again=q.match(/\b(?:check on me|check in on me|check me)\s+again\s+in\s+(\d+)\s+(minutes?|hours?)\b/);
+    if(again){
+      const amount=Math.max(1,Math.min(1440,Number(again[1])*(again[2].startsWith('hour')?60:1)));
+      if(wellnessTimeout)clearTimeout(wellnessTimeout);
+      wellnessTimeout=setTimeout(()=>{
+        wellnessTimeout=null;
+        if(wellnessEnabled&&document.visibilityState==='visible'&&!qorvexIsSleeping()){
+          window.queueBackgroundSpeech('Boss, you asked me to check on you. How are you doing?');
+        }
+      },amount*60000);
+      return 'Certainly, Boss. I will check on you again in '+amount+' minutes, as long as the dashboard remains open.';
+    }
+    const every=q.match(/\b(?:check on me|check in on me|wellness check[ -]?ins?)\s+(?:every|each)\s+(\d+)\s+(minutes?|hours?)\b/);
+    if(every){
+      wellnessIntervalMinutes=Math.max(5,Math.min(1440,Number(every[1])*(every[2].startsWith('hour')?60:1)));
+      wellnessEnabled=true;
+      localStorage.setItem('qorvex_wellness_enabled','true');
+      localStorage.setItem('qorvex_wellness_minutes',String(wellnessIntervalMinutes));
+      scheduleWellnessCheckins();
+      return 'Check-ins are now scheduled every '+wellnessIntervalMinutes+' minutes, Boss.';
+    }
+    if(/\b(check on me|check in on me|check up on me|are you checking on me)\b/.test(q)){
+      return 'I am here, Boss. How are you doing? Would you like to tell me how things are going?';
+    }
+    if(/\b(i am fine|i'm fine|im fine|i am okay|i'm okay|im okay|doing fine|doing okay)\b/.test(q)){
+      return 'I am glad to hear that, Boss. I will be here if you need anything.';
+    }
+    if(/\b(i am not okay|i'm not okay|im not okay|i am not fine|i'm not fine|im not fine|i feel bad|i feel down|having a hard time)\b/.test(q)){
+      return 'I am sorry things are difficult, Boss. I am here to listen. Would you like to tell me what is happening, or would practical help be better?';
+    }
+    return null;
+  }
+  const sendMessageBeforeWellness=window.sendMessage;
+  window.sendMessage=async function(){
+    const input=$('chatInput');
+    const raw=input&&input.value?input.value.trim():'';
+    if(!raw)return;
+    const q=raw.toLowerCase().replace(/[^a-z0-9.'\s-]/g,' ').replace(/\s+/g,' ').trim();
+    const wellnessReply=handleWellnessCommand(q);
+    if(wellnessReply){
+      input.value='';
+      lastUserActivity=Date.now();
+      addChat(raw,'user');
+      window.reply(wellnessReply);
+      return;
+    }
+    return sendMessageBeforeWellness();
+  };
+
+  // Explicit dashboard-entry briefing: fetch first, then announce only values actually received.
+  const startQorvexBeforeBriefing=window.startQorvex;
+  window.startQorvex=function(){
+    startupGreetingPending=false; // suppress the older generic greeting
+    const result=startQorvexBeforeBriefing.apply(this,arguments);
+    scheduleWellnessCheckins();
+    updateWellnessStatus();
+    const announce=async()=>{
+      const check=await window.checkBridge({quiet:true});
+      let briefing;
+      if(check && check.ok && check.sensorOK && lastSensor){
+        briefing='Compassion.Sat 1 is online. The ESP32 is responding and the DHT22 sensor is providing valid readings. The current temperature is '+lastSensor.temperature.toFixed(1)+' degrees Celsius, and humidity is '+lastSensor.humidity.toFixed(1)+' percent.';
+        if(lastSensor.wifiReported===true) briefing+=' The ESP32 reports that Wi-Fi is connected.';
+        else if(lastSensor.wifiReported===false) briefing+=' The ESP32 reports that Wi-Fi is disconnected.';
+      }else if(check && check.ok){
+        briefing='The ESP32 is responding, but the DHT22 temperature and humidity readings are unavailable or invalid. Compassion.Sat 1 is only partially online.';
+      }else{
+        briefing='I cannot currently verify that Compassion.Sat 1 is online. The ESP32 endpoint could not be reached from this browser, so I will not claim that the system is connected.';
+      }
+      const greeting='Welcome back, Sir. '+briefing;
+      window.queueBackgroundSpeech(greeting);
+      addChat(greeting,'q');
+    };
+    window.setTimeout(announce,1200);
+    return result;
+  };
+
+  // Speech may need a user gesture in some browsers. Keep the briefing queued until one occurs.
+  const releaseQueuedSpeech=()=>{if(pendingSpeechQueue.length&&!isSpeaking&&!qorvexIsSleeping())deliverPendingSpeech();};
+  window.addEventListener('pointerdown',releaseQueuedSpeech);
+  window.addEventListener('keydown',releaseQueuedSpeech);
+  // Also run a fresh reading when the user returns to the dashboard tab.
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible'&&monitorRunning){
+      window.setTimeout(async()=>{
+        await window.checkBridge({quiet:true});
+        if(wellnessEnabled&&!qorvexIsSleeping()){
+          window.queueBackgroundSpeech('Welcome back, Boss. '+currentReport());
+        }
+      },700);
+    }
+  });
+
+  // Restore manual microphone intent on page start: hands-free remains off until enabled by the user.
+  manualMicPaused=false;manualMicStopped=false;
+  addStyle();
+  // Existing load handler calls window.startQorvex dynamically, after this script has installed it.
+})();
+</script>
+
 </body>
 </html>
